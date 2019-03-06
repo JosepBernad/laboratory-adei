@@ -1,0 +1,149 @@
+exit
+setwd("~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory")
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory")
+dirwd <- "~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory"
+# Data file already
+read.table()
+setwd("~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory")
+dirwd <- "~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory"
+# Data file already
+#read.table()
+setwd("~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory")
+dirwd <- "~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory"
+# Data file already
+df <- read.table(paste0(dirwd, "/"))
+setwd("~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory")
+dirwd <- "~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory"
+# Data file already
+df <- read.table(paste0(dirwd, "/bank-additional-full.csv"))
+setwd("~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory")
+dirwd <- "~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory"
+# Data file already
+df <- read.table(paste0(dirwd, "/bank-additional-full.csv"), header=TRUE, sep=";")
+View(df)
+View(df)
+View(df)
+View(df)
+setwd("~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory")
+?dim
+dim(df)     # Dimensions of an object
+?sample
+list <- sample(suze=5000, x=1:nrow(df),replace=FALSE)  # Random sampling of 5000 sample
+list <- sample(sIze=5000, x=1:nrow(df),replace=FALSE)  # Random sampling of 5000 sample
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # Random sampling of 5000 sample
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # Random sampling of 5000 sample
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+set.seed(10111997)
+list <- sample(size=5000, x=1:nrow(df),replace=FALSE)  # list <- Random 5000 unic samples
+list <- sort(list)                                     # Sort list in an ascendent order
+#list                                                   # Show list
+df[3,]  # Third row, all the columns
+test <- df[3,]  # Third row, all the columns
+test
+View(test)
+View(test)
+df <- df[llista,]
+df <- df[list,]
+View(test)
+save.image("~/Google Drive/UPC/ADEI/ADEI (Shared)/Project/Data directory/data.RData")
+?df
+View(test)
+View(test)
+names(df)
+summary(dt)
+summary(df)
+hist(df$duration)    #Histrgram
+hist(df$duration, col="cyan")    # Histrgram with color
+hist(df$duration, 20, col="cyan", main="Duration - Histogram")    # Histrgram with color, title and custom bars
+hist(df$duration, 50, col="cyan", main="Duration - Histogram")    # Histrgram with color, title and custom bars
+hist(df$duration,
+breaks=c(0,5,500,1000,2500,5000),
+col="cyan",
+main="Duration - Histogram")    # Histrgram with color, title and custom bars
+hist(df$duration,
+breaks=c(0,500,1000,2500,5000),
+col="cyan",
+main="Duration - Histogram")    # Histrgram with color, title and custom bars
+hist(df$duration,
+breaks=c(0,500,1000,2000,5000),
+col="cyan",
+main="Duration - Histogram")    # Histrgram with color, title and custom bars
+#Numeric
+hist(df$duration)    # Histrgram
+hist(df$duration, freq = FALSE)      # Histogram with no freq in the y axe
+boxplot(df$duration)
+library(car)
+library(car)
+library(car)
+Boxplot(df$duration)  # Car library -> Import it!
+Boxplot(df$duration, labels=row.name(df))
+Boxplot(df$duration, labels=row.names(df))
+install.packages("car")
+library(car)
+df[2,3]
+df[2, "duration"]
+library(car)
+Boxplot(df$duration, labels=row.names(df))
+names(df)     # List with names of target variables
+vars_target <- names(df)[c(11,21)];vars_target    # List with names of target variables
+summary(df[,vars_target])
+load("F:/Google Drive/Uni/2018-2019/Q2/ADEI (Shared)/Project/Data directory/data.RData")
+load("F:/Google Drive/Uni/2018-2019/Q2/ADEI (Shared)/Project/Data directory/.RData")

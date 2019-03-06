@@ -1,0 +1,243 @@
+---
+title: "Load Data"
+author: "Me"
+date: "28 de febrero de 2019"
+output:
+  word_document:
+    toc: yes
+    toc_depth: '3'
+  pdf_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: '3'
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Presentation
+## R Markdowns document
+
+This is an R Markdown document. 
+We are showing some examples of EDA. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. Use * to provide emphasis such as *italics* and **bold**.
+
+Create lists: Unordered * and +     or   ordered   1. 2.  
+
+  1. Item 1
+  2. Item 2
+    + Item 2a
+    + Item 2b
+
+
+# Bank client data
+
+## Description 
+
+*Input variables:*
+
+  1. age (numeric)
+  2. job : type of job (categorical: 'admin.','blue-collar','entrepreneur','housemaid','management','retired','self-employed','services','student','technician','unemployed','unknown')
+  3. marital : marital status (categorical: 'divorced','married','single','unknown'; note: 'divorced' means divorced or widowed)
+  4. education (categorical:'basic.4y','basic.6y','basic.9y','high.school','illiterate','professional.course','university.degree','unknown')
+  5. default: has credit in default? (categorical: 'no','yes','unknown')
+  6. housing: has housing loan? (categorical: 'no','yes','unknown')
+  7. loan: has personal loan? (categorical: 'no','yes','unknown')# related with the last contact of the current campaign:
+  8. contact: contact communication type (categorical:'cellular','telephone')
+  9. month: last contact month of year (categorical: 'jan', 'feb', 'mar',..., 'nov', 'dec')
+  10. day_of_week: last contact day of the week (categorical:'mon','tue','wed','thu','fri')
+  11. duration: last contact duration, in seconds (numeric). Important note: this attribute highly affects the output target (e.g., if duration=0 then y='no'). Yet, the duration is not known before a call is performed. Also, after the end of the call y is obviously known. Thus, this input should only be included for benchmark purposes and should be discarded if the intention is to have a realistic predictive model.
+  12. campaign: number of contacts performed during this campaign and for this client (numeric, includes last contact)
+  13. pdays: number of days that passed by after the client was last contacted from a previous campaign (numeric; 999 means client was not previously contacted)
+  14. previous: number of contacts performed before this campaign and for this client (numeric)
+  15. poutcome: outcome of the previous marketing campaign (categorical: 'failure','nonexistent','success')# social and economic context attributes
+  16. emp.var.rate: employment variation rate - quarterly indicator (numeric)
+  17. cons.price.idx: consumer price index - monthly indicator (numeric)
+  18. cons.conf.idx: consumer confidence index - monthly indicator (numeric)
+  19. euribor3m: euribor 3 month rate - daily indicator (numeric)
+  20. nr.employed: number of employees - quarterly indicator (numeric)
+  21. y - has the client subscribed a term deposit? (binary: 'yes','no')
+
+# Loading packages
+
+```{r, include=FALSE}
+requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA")
+missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="~/R/win-library/3.5")[,"Package"]))]
+
+#if(length(missingPackages)) install.packages(missingPackages)
+install.packages(requiredPackages,dependencies = TRUE,repos = c("http://rstudio.org/_packages","http://cran.rstudio.com"))
+lapply(requiredPackages, require, character.only = TRUE)
+```
+
+# Loading data
+
+## Load sample of 5000 records
+
+```{r}
+#rm(list=ls())
+# Load Required Packages: to be increased over the course
+
+#setwd("C:/Users/lmontero/Dropbox/DOCENCIA/FIB-ADEI/PRACTICA/BankMarketing")
+#setwd("D:/DOCENCIA/FIB-ADEI/PRACTICA/BankMarketing")
+
+# Josep
+#setwd("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory")
+#file_path <- "/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory"
+
+# Àlex
+#setwd("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/Data directory")
+#file_path <- "/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory"
+
+#load(paste0(file_path,"5000_samples.RData"))
+summary(df)
+```
+
+# Exploratory Data Analysis
+
+## Create a new factor from an existing one
+
+### Month to season
+```{r}
+#Modify factor levels label
+df$month <- factor(df$month, labels=paste("Month", sep="-", levels(df$month)))
+
+table(df$month)
+#Month-mar Month-apr Month-may Month-jun Month-jul Month-aug 
+#       58       351      1665       626       818       791 
+#Month-sep Month-oct Month-nov Month-dec 
+#       79        95       498        19 
+
+# Define new factor categories: 1- Spring 2-Summer 3-Resta
+df$f.season <- 3
+# 1 level - spring 
+sel<-which(df$month %in% c("Month-mar","Month-apr","Month-may"))
+df$f.season[sel] <-1
+
+# 2 level - Summer 
+sel<-which(df$month %in% c("Month-jun","Month-jul","Month-aug"))
+df$f.season[sel] <-2
+
+table(df$f.season);summary(df$f.season)
+df$f.season<-factor(df$f.season,levels=1:3,labels=c("Spring","Summer","Aut-Win"))
+summary(df)
+```
+
+### Job -> self-employed, worker, other
+```{r}
+#Modify factor levels label
+df$job <- factor(df$job, labels=paste("Job", sep="-", levels(df$job)))
+
+table(df$job)
+
+# Define new factor categories: 1-selfemployed 2-worker 3-other
+df$f.jobsituation<-3
+
+# 1 level - self-employed
+sel<-which(df$job %in% c("Job-entrepreneur","Job-housemaid","Job-self-employed"))
+df$f.jobsituation[sel] <- 1
+
+# 2 level - worker
+sel<-which(df$job %in% c("Job-admin","Job-blue-collar","Job-management","Job-services","Job-technician"))
+df$f.jobsituation[sel] <- 2
+
+
+table(df$f.jobsituation);summary(df$f.jobsituation)
+df$f.jobsituation<-factor(df$f.jobsituation,levels=1:3,labels=c("Self-employed","Worker","Other"))
+summary(df)
+```
+
+
+## Count missing values: columns and rows
+
+```{r}
+
+# Some examples of pre-process (set to NA those considered NA)
+sel<-which(df$marital=="Marital-unknown");length(sel)
+df$marital[sel]<-NA
+
+# All missing data indicated as NA
+miss_row<-rowSums(is.na(df))
+summary(miss_row)
+miss_col<-colSums(is.na(df))
+miss_col
+
+```
+
+# Imputation
+
+```{r}
+# missMDA
+library(missMDA)
+names(df)
+#> names(df)
+# [1] "age"            "job"            "marital"       
+# [4] "education"      "default"        "housing"       
+# [7] "loan"           "contact"        "month"         
+#[10] "day_of_week"    "duration"       "campaign"      
+#[13] "pdays"          "previous"       "poutcome"      
+#[16] "emp.var.rate"   "cons.price.idx" "cons.conf.idx" 
+#[19] "euribor3m"      "nr.employed"    "y"             
+#[22] "season"         "f.season"      
+
+summary(df) # Lists of vars numeric and factors
+vars_con<-names(df)[c(1,11:14,16:20)]
+vars_dis<-names(df)[c(2:10,15,21:23)]
+summary(df[,vars_con])
+
+res.impn<-imputePCA(df[,vars_con],ncp=5)
+attributes(res.impn)
+# data.frame with all NA imputed: res.impn$completeObs
+summary(res.impn$completeObs)
+
+# Check before and after imputation for every variable (numeric)
+
+# Trend and dispersion statistics
+quantile(df$pdays,seq(0,1,0.1),na.rm=T)
+quantile(res.impn$completeObs[,"pdays"],seq(0,1,0.1))
+# Graphics
+par(mfrow=c(1,2))
+Boxplot(df$pdays)
+Boxplot(res.impn$completeObs[,"pdays"])
+par(mfrow=c(1,1))
+
+# Save complete columns of your validated variables
+# df[,"varname"]<-res.impn$completeObs[,"varname"]
+
+df$pdays[is.na(df$pdays)]<-30 # Manual imputation
+summary(df$pdays)
+
+```
+
+## Imputation of missing values in factors
+
+```{r}
+summary(df[,vars_dis])
+res.impf<-imputeMCA(df[,vars_dis],ncp=10)
+summary(res.impf$completeObs)
+
+# Only missing data at marital: I accept the imputation proposal
+
+df$marital<-res.impf$completeObs[,"marital"]
+summary(df[,vars_dis])
+
+```
+
+## Multivariant Outliers
+
+```{r}
+# No missing data should be present!!!
+
+library(mvoutlier)
+# Consider subset of numeric variables
+summary(df[,vars_con])
+vars_con
+vars_con_sub<-vars_con[c(1,2,6:10)]
+aq.plot(df[,vars_con_sub],delta=qchisq(0.995, df=ncol(x)))
+
+```
