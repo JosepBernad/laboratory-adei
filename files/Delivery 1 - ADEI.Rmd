@@ -1,6 +1,6 @@
 ---
 title: "First delivery - ADEI"
-author: "Àlex Rubio i Josep Bernad"
+author: "Alex Rubio i Josep Bernad"
 date: "6 de març de 2019"
 output:
   pdf_document:
@@ -80,14 +80,14 @@ lapply(requiredPackages, require, character.only = TRUE)
 
 ## Load sample of 5000 records
 ```{r}
-rm(list=ls())
+#rm(list=ls())
 # Load Required Packages: to be increased over the course
 
 #setwd("C:/Users/lmontero/Dropbox/DOCENCIA/FIB-ADEI/PRACTICA/BankMarketing")
 #setwd("D:/DOCENCIA/FIB-ADEI/PRACTICA/BankMarketing")
 
 # Josep
-setwd("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory")
+#setwd("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory")
 #file_path <- "Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory"
 
 # Alex
@@ -95,7 +95,7 @@ setwd("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory")
 #file_path <- "D:\Google Drive\Uni\ADEI\data-directory"
 
 #load(paste0("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory","5000_samples.RData"))
-load(path.expand("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData"))
+#load(path.expand("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData"))
 #summary(df)
 ```
 
