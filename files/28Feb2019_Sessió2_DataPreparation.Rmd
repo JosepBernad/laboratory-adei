@@ -173,6 +173,60 @@ summary(df)
 ```
 
 
+### age -> tenths
+
+```{r}
+summary(df)
+table(df$age)
+
+df$f.age_tenths<-9
+
+# 10s
+sel<-which(df$age %in% c(10:19))
+df$f.age_tenths[sel] <- 1
+
+# 20s
+sel<-which(df$age %in% (20:29))
+df$f.age_tenths[sel] <- 2
+
+# 30s
+sel<-which(df$age %in% (30:39))
+df$f.age_tenths[sel] <- 3
+
+# 40s
+sel<-which(df$age %in% (40:49))
+df$f.age_tenths[sel] <- 4
+
+# 50s
+sel<-which(df$age %in% (50:59))
+df$f.age_tenths[sel] <- 5
+
+# 60s
+sel<-which(df$age %in% (60:69))
+df$f.age_tenths[sel] <- 6
+
+# 70s
+sel<-which(df$age %in% (70:79))
+df$f.age_tenths[sel] <- 7
+
+# 80s
+sel<-which(df$age %in% (80:89))
+df$f.age_tenths[sel] <- 8
+
+# 90s
+sel<-which(df$age %in% (90:99))
+df$f.age_tenths[sel] <- 9
+
+table(df$f.age-tenths);summary(df$f.age-tenths)
+df$f.age_tenths<-factor(df$f.age_tenths,levels=1:9,labels=c("10","20","30","40","50","60","70","80","90"))
+summary(df)
+table(df$f.age_tenths)
+```
+
+
+
+
+
 <!-- ## Count missing values: columns and rows -->
 <!-- ```{r} -->
 
