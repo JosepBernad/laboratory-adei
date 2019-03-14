@@ -226,7 +226,6 @@ table(df$f.age_tenths)
 
 
 
-
 <!-- ## Count missing values: columns and rows -->
 <!-- ```{r} -->
 
