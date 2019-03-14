@@ -174,7 +174,6 @@ summary(df)
 
 
 ### age -> tenths
-
 ```{r}
 summary(df)
 table(df$age)
