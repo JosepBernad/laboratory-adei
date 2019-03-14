@@ -107,28 +107,31 @@ load(path.expand("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-di
 sel<-which(df$default=="unknown");length(sel)
 df$default[sel] <- NA
 df$default <- factor(df$default)
+summary(df$default)
 
 #marital
 sel<-which(df$marital=="unknown");length(sel)
 df$marital[sel] <- NA
 df$marital <- factor(df$marital)
+summary(df$marital)
 
 #Housing
 sel<-which(df$housing=="unknown");length(sel)
 df$housing[sel] <- NA
 df$housing <- factor(df$housing)
+summary(df$housing)
 
 #Loan
 sel<-which(df$loan=="unknown");length(sel)
 df$loan[sel] <- NA
 df$loan <- factor(df$loan)
-
 summary(df$loan)
 
 #Job
 sel<-which(df$job=="unknown");length(sel)
 df$job[sel] <- NA
 df$job <- factor(df$job)
+summary(df$job)
 
 ```
 
