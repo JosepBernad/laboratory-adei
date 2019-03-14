@@ -123,6 +123,7 @@ sel<-which(df$loan=="unknown");length(sel)
 df$loan[sel] <- NA
 df$loan <- factor(df$loan)
 
+summary(df$loan)
 
 #Job
 sel<-which(df$job=="unknown");length(sel)
