@@ -260,6 +260,10 @@ table(df$f.loan);summary(df$f.loan)
 df$f.contact<-factor(df$contact,labels=paste("f",sep=".",levels(df$contact)))
 table(df$f.contact);summary(df$f.contact)
 
+#Day of Week
+df$f.day<-factor(df$day_of_week,labels=paste("f.day",sep=".",levels(df$day)))
+table(df$f.day);summary(df$f.day)
+
 ```
 
 
