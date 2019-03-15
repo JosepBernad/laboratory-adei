@@ -133,6 +133,12 @@ df$job[sel] <- NA
 df$job <- factor(df$job)
 summary(df$job)
 
+#Education
+sel<-which(df$education=="unknown");length(sel)
+df$education[sel] <- NA
+df$education <- factor(df$education)
+summary(df$education)
+
 ```
 
 
@@ -181,7 +187,7 @@ df$f.jobsituation[sel] <- 2
 
 table(df$f.jobsituation);summary(df$f.jobsituation)
 df$f.jobsituation<-factor(df$f.jobsituation,levels=1:3,labels=c("Self-employed","Worker","Other"))
-summary(df)
+summary(df$job)
 ```
 
 ### pdays -> contacted, not-contacted
@@ -201,7 +207,7 @@ df$f.prev_contacted[sel] <- 2
 
 table(df$f.prev_contacted);summary(df$f.prev_contacted)
 df$f.prev_contacted<-factor(df$f.prev_contacted,levels=1:2,labels=c("Contacted","No-contacted"))
-summary(df)
+summary(df$pdays)
 
 ```
 
@@ -227,6 +233,33 @@ df$f.education[sel] <- 2
 table(df$f.education);summary(df$f.education)
 df$f.education<-factor(df$f.education,levels=1:3,labels=c("Mandatory","Non-Mandatory","Other"))
 summary(df)
+```
+
+
+### Factoritzacions extres
+```{r}
+#Housing
+
+df$f.housing<-factor(df$housing,labels=paste("f",sep=".",levels(df$housing)))
+table(df$f.housing);summary(df$f.housing);
+
+#Marital
+
+df$f.marital<-factor(df$marital,labels=paste("f",sep=".",levels(df$marital)))
+table(df$f.marital);summary(df$f.marital);
+
+#Default
+df$f.default<-factor(df$default, labels=paste("f",sep=".",levels(df$default)))
+table(df$f.default);summary(df$f.default)
+
+#Loan
+df$f.loan<-factor(df$loan,labels=paste("f",sep=".",levels(df$loan)))
+table(df$f.loan);summary(df$f.loan)
+
+#Contact
+df$f.contact<-factor(df$contact,labels=paste("f",sep=".",levels(df$contact)))
+table(df$f.contact);summary(df$f.contact)
+
 ```
 
 
