@@ -282,17 +282,70 @@ qulist<-quantile(df$age,seq(0,1,0.25),na.rm=TRUE)
 varaux<-factor(cut(df$age,breaks=qulist,include.lowest=T))
 table(varaux)
 tapply(df$age,varaux,median)
-varaux<-factor(cut(df$age,breaks=c(17,30,40,50,88),include.lowest=T))
+varaux<-factor(cut(df$age,breaks=c(17,30,40,50,95),include.lowest=T))
 table(varaux)
 tapply(df$age,varaux,median)
 
-df$f.age<-factor(cut(df$age,breaks=c(17,30,40,50,88),include.lowest=T))
+df$f.age<-factor(cut(df$age,breaks=c(17,30,40,50,95),include.lowest=T))
 
 summary(df$f.age)
 levels(df$f.age)<-paste0("f.age-",levels(df$f.age))
 ```
 
 # Exploratory Data Analysis 
+Numeric Summary and Graphic Support.
+##Age
+```{r}
+summary(df$age)
+barplot(table(df$age), main= "Age")
+summary(df$f.age)
+barplot(table(df$f.age), main="Age groups",names.arg=c("17 a 30","30 a 40","40 a 50",">50"),col="yellow")
+```
+##Job
+```{r}
+table(df$job)
+pie(table(df$job), main= "Job")
+aux <- table(df$f.jobsituation)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Job Situation")
+```
+##Marital
+```{r}
+table(df$marital)
+aux <- table(df$marital)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Marital Situation")
+```
+##Education
+```{r}
+table(df$education)
+pie(table(df$education), main= "Education")
+aux <- table(df$f.education)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Education Level")
+```
+##Education
+```{r}
+table(df$education)
+pie(table(df$education), main= "Education")
+aux <- table(df$f.education)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Education Level")
+```
+
+
 
 
 
