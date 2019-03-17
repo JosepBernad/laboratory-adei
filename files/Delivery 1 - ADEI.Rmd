@@ -65,7 +65,7 @@ Create lists: Unordered * and +     or   ordered   1. 2.
   20. nr.employed: number of employees - quarterly indicator (numeric)
   21. y - has the client subscribed a term deposit? (binary: 'yes','no')
 
-# Loading packages
+# Loading packages 
 
 ```{r, include=FALSE}
 requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA")
@@ -77,8 +77,6 @@ lapply(requiredPackages, require, character.only = TRUE)
 ```
 
 # Loading data
-
-## Load sample of 5000 records
 ```{r}
 #rm(list=ls())
 # Load Required Packages: to be increased over the course
@@ -91,19 +89,19 @@ lapply(requiredPackages, require, character.only = TRUE)
 #file_path <- "Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory"
 
 # Alex
-#setwd("D:/Google Drive/Uni/ADEI/data-directory")
-#file_path <- "D:\Google Drive\Uni\ADEI\data-directory"
+setwd("D:/Google Drive/Uni/ADEI/data-directory")
+file_path <- "D:/Google Drive/Uni/ADEI/data-directory"
 
-#load(paste0("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory","5000_samples.RData"))
-#load(path.expand("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData"))
-#summary(df)
+#load(paste0("D:/Google Drive/Uni/ADEI/data-directory","5000_samples.RData"))
+load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+summary(df)
 ```
 
 
 #Univariate Descriptive Analysis
-##Creem factors per cada variable posant abans NA a aquells valos erronis o faltants.
+Creem factors per cada variable posant abans NA a aquells valos erronis o faltants.
 
-##Missing -> NA
+##Transform missing and wrong data to NA's
 ```{r}
 #Default
 sel<-which(df$default=="unknown");length(sel)
@@ -152,11 +150,10 @@ summary(df$pdays)
 
 ## Create new factors corresponding to qualitative concepts.
 
-### Month to season
+### Month
 ```{r}
 #Modify factor levels label
 df$f.month <- factor(df$month, labels=paste("Month", sep="-", levels(df$month)))
-summary(df)
 table(df$f.month)
 
 # Define new factor categories: 1-Spring | 2-Summer | 3-Resta
@@ -175,7 +172,7 @@ df$f.season<-factor(df$f.season,levels=1:3,labels=c("Spring","Summer","Aut-Win")
 summary(df$f.season)
 ```
 
-### Job -> self-employed, worker, other
+### Job 
 ```{r}
 #Modify factor levels label
 df$f.job <- factor(df$job, labels=paste("Job", sep="-", levels(df$job)))
@@ -198,7 +195,7 @@ df$f.jobsituation<-factor(df$f.jobsituation,levels=1:3,labels=c("Self-employed",
 summary(df$f.jobsituation)
 ```
 
-### pdays -> contacted, not-contacted
+### Pdays
 ```{r}
 table(df$pdays)
 
@@ -220,7 +217,7 @@ summary(df$pdays)
 ```
 
 
-### education -> mandatory, nonmandatory, other
+### Education
 ```{r}
 #Modify factor levels label
 df$education <- factor(df$education, labels=paste("Edu", sep="-", levels(df$education)))
@@ -244,7 +241,7 @@ summary(df$f.education)
 ```
 
 
-### Factoritzacions extres
+### Extra Factorization
 ```{r}
 #Housing
 
@@ -275,11 +272,10 @@ table(df$f.day);summary(df$f.day)
 ```
 
 
-### Discretitzacio numerica, realitzada 
+
+## Create new factors corresponding to quantitative concepts.
+### Age discreatization
 ```{r}
-# Discretitzaci? num?riques
-names(df)
-# Age
 summary(df$age)
 qulist<-quantile(df$age,seq(0,1,0.25),na.rm=TRUE)
 
