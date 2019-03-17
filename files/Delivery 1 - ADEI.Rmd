@@ -99,7 +99,9 @@ lapply(requiredPackages, require, character.only = TRUE)
 #summary(df)
 ```
 
-# Exploratory Data Analysis
+
+#Univariate Descriptive Analysis
+##Creem factors per cada variable posant abans NA a aquells valos erronis o faltants.
 
 ##Missing -> NA
 ```{r}
@@ -139,55 +141,61 @@ df$education[sel] <- NA
 df$education <- factor(df$education)
 summary(df$education)
 
+#Pdays
+sel<-which(df$pdays==999);length(sel)
+df$pdays[sel] <- NA
+df$pdays <- factor(df$pdays)
+summary(df$pdays)
+
 ```
 
 
-## Create a new factor from an existing one
+## Create new factors corresponding to qualitative concepts.
 
 ### Month to season
 ```{r}
 #Modify factor levels label
-df$month <- factor(df$month, labels=paste("Month", sep="-", levels(df$month)))
+df$f.month <- factor(df$month, labels=paste("Month", sep="-", levels(df$month)))
 summary(df)
-table(df$month)
+table(df$f.month)
 
 # Define new factor categories: 1-Spring | 2-Summer | 3-Resta
 df$f.season <- 3
 
 # 1 level - spring 
-sel<-which(df$month %in% c("Month-mar","Month-apr","Month-may"))
+sel<-which(df$f.month %in% c("Month-mar","Month-apr","Month-may"))
 df$f.season[sel] <-1
 
 # 2 level - Summer 
-sel<-which(df$month %in% c("Month-jun","Month-jul","Month-aug"))
+sel<-which(df$f.month %in% c("Month-jun","Month-jul","Month-aug"))
 df$f.season[sel] <-2
 
 table(df$f.season);summary(df$f.season)
 df$f.season<-factor(df$f.season,levels=1:3,labels=c("Spring","Summer","Aut-Win"))
-summary(df)
+summary(df$f.season)
 ```
 
 ### Job -> self-employed, worker, other
 ```{r}
 #Modify factor levels label
-df$job <- factor(df$job, labels=paste("Job", sep="-", levels(df$job)))
+df$f.job <- factor(df$job, labels=paste("Job", sep="-", levels(df$job)))
 
-table(df$job)
+table(df$f.job)
 
 # Define new factor categories: 1-selfemployed | 2-worker | 3-other
 df$f.jobsituation<-3
 
 # 1 level - self-employed
-sel<-which(df$job %in% c("Job-entrepreneur","Job-housemaid","Job-self-employed"))
+sel<-which(df$f.job %in% c("Job-entrepreneur","Job-housemaid","Job-self-employed"))
 df$f.jobsituation[sel] <- 1
 
 # 2 level - worker
-sel<-which(df$job %in% c("Job-admin","Job-blue-collar","Job-management","Job-services","Job-technician"))
+sel<-which(df$f.job %in% c("Job-admin","Job-blue-collar","Job-management","Job-services","Job-technician"))
 df$f.jobsituation[sel] <- 2
 
 table(df$f.jobsituation);summary(df$f.jobsituation)
 df$f.jobsituation<-factor(df$f.jobsituation,levels=1:3,labels=c("Self-employed","Worker","Other"))
-summary(df$job)
+summary(df$f.jobsituation)
 ```
 
 ### pdays -> contacted, not-contacted
@@ -232,7 +240,7 @@ df$f.education[sel] <- 2
 
 table(df$f.education);summary(df$f.education)
 df$f.education<-factor(df$f.education,levels=1:3,labels=c("Mandatory","Non-Mandatory","Other"))
-summary(df)
+summary(df$f.education)
 ```
 
 
@@ -267,7 +275,7 @@ table(df$f.day);summary(df$f.day)
 ```
 
 
-### Discretització numèrica
+### Discretitzacio numerica, realitzada 
 ```{r}
 # Discretitzaci? num?riques
 names(df)
@@ -288,6 +296,7 @@ summary(df$f.age)
 levels(df$f.age)<-paste0("f.age-",levels(df$f.age))
 ```
 
+# Exploratory Data Analysis 
 
 
 
