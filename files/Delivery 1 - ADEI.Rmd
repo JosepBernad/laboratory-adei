@@ -293,7 +293,6 @@ levels(df$f.age)<-paste0("f.age-",levels(df$f.age))
 ```
 
 # Exploratory Data Analysis 
-Numeric Summary and Graphic Support.
 ##Age
 ```{r}
 summary(df$age)
@@ -301,6 +300,7 @@ barplot(table(df$age), main= "Age")
 summary(df$f.age)
 barplot(table(df$f.age), main="Age groups",names.arg=c("17 a 30","30 a 40","40 a 50",">50"),col="yellow")
 ```
+
 ##Job
 ```{r}
 table(df$job)
@@ -330,19 +330,89 @@ aux <- table(df$f.education)
 pct <- round(aux/sum(aux)*100)
 lbls <- paste(names(aux), "\n", pct, sep="")
 lbls <- paste(lbls,"%",sep="") # ad % to labels 
-pie(aux,labels = lbls,
-   main="Education Level")
+pie(aux,labels = lbls, main="Education Level")
 ```
-##Education
+##Default-Housing-Loan
 ```{r}
-table(df$education)
-pie(table(df$education), main= "Education")
-aux <- table(df$f.education)
+table(df$default)
+table(df$housing)
+table(df$loan)
+attach(mtcars)
+par(mfrow=c(1,2))
+aux <- table(df$loan)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls, main="Personal Loan")
+aux <- table(df$housing)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls, main="Housing Loan")
+```
+##Contact Device
+```{r}
+table(df$contact)
+aux <- table(df$contact)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls, main="Contact Device")
+```
+##Date
+```{r}
+table(df$month)
+table(df$f.season)
+table(df$day_of_week)
+#par(mfrow=c(1,2))
+barplot(table(df$f.season), main= "Season", col="darkblue")
+aux <- table(df$day_of_week)
 pct <- round(aux/sum(aux)*100)
 lbls <- paste(names(aux), "\n", pct, sep="")
 lbls <- paste(lbls,"%",sep="") # ad % to labels 
 pie(aux,labels = lbls,
-   main="Education Level")
+   main="Day of the week")
+```
+#
+##Duration
+```{r}
+summary(df$duration)
+barplot(table(df$duration),col="yellow",border="red")
+
+```
+
+#Data Quality Report
+##Missing Values
+```{r}
+vmiss<-rep(0,nrow(df))
+nmiss<-rep(0,21)
+names(nmiss) <- names(df[0:21])
+names(df[0:21])
+for(j in 1:21) {
+nmiss[j]<-nmiss[j]+sum(is.na(df[,j]))
+}
+nmiss
+summary(df$pdays)
+```
+##Errors
+```{r}
+verrs<-rep(0, nrow(df))
+errors<-rep(0, ncol(df))
+names(nerrs)<-names(df)
+#### poutcome
+v<-c("failure", "nonexistent", "success")
+llista<-which(!is.element(df[,15], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[15]<-nerrs[15]+sum(!is.element(df[,15], v))
+nerrs
+```
+##Outliers
+```{r}
+
+```
+
+```{r}
+condes()
 ```
 
 
