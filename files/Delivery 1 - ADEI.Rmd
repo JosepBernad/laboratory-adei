@@ -1,7 +1,7 @@
 ---
 title: "First delivery - ADEI"
 author: "Alex Rubio i Josep Bernad"
-date: "6 de març de 2019"
+date: "1 de març de 2019"
 output:
   pdf_document:
     number_sections: yes
@@ -24,17 +24,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Presentation
-## R Markdowns document
+We are going to work with dataset bank-additional-full.csv with all examples (41188) and 20 inputs, ordered by date (from May 2008 to November 2010), very close to the data
+analyzed in [Moro et al., 2014].
 
-This is an R Markdown document. 
-We are showing some examples of EDA. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. Use * to provide emphasis such as *italics* and **bold**.
-
-Create lists: Unordered * and +     or   ordered   1. 2.  
-
-  1. Item 1
-  2. Item 2
-    + Item 2a
-    + Item 2b
+Deliverables are concerned with Multivariant Data Analysis and model building for response variables: Y- Duration of the call and binary factor Y (Binary Target) if the product (bank term deposit) would be ('yes') or not ('no') subscribed.
 
 
 # Bank client data
@@ -309,8 +302,7 @@ aux <- table(df$f.jobsituation)
 pct <- round(aux/sum(aux)*100)
 lbls <- paste(names(aux), "\n", pct, sep="")
 lbls <- paste(lbls,"%",sep="") # ad % to labels 
-pie(aux,labels = lbls,
-   main="Job Situation")
+pie(aux,labels = lbls, main="Job Situation")
 ```
 ##Marital
 ```{r}
@@ -319,8 +311,7 @@ aux <- table(df$marital)
 pct <- round(aux/sum(aux)*100)
 lbls <- paste(names(aux), "\n", pct, sep="")
 lbls <- paste(lbls,"%",sep="") # ad % to labels 
-pie(aux,labels = lbls,
-   main="Marital Situation")
+pie(aux,labels = lbls, main="Marital Situation")
 ```
 ##Education
 ```{r}
@@ -397,7 +388,7 @@ summary(df$pdays)
 ##Errors
 ```{r}
 verrs<-rep(0, nrow(df))
-errors<-rep(0, ncol(df))
+nerrs<-rep(0, ncol(df))
 names(nerrs)<-names(df)
 #### poutcome
 v<-c("failure", "nonexistent", "success")
@@ -407,18 +398,15 @@ nerrs[15]<-nerrs[15]+sum(!is.element(df[,15], v))
 nerrs
 ```
 ##Outliers
+###Age
 ```{r}
-
+boxplot(df$age)
+boxplot(df$duration)
+boxplot(df$campaign)
+boxplot(df$previous)
+summary(df$previous)
 ```
-
-```{r}
-condes()
-```
-
-
-
-
-
+#Imputation
 
 
 <!-- ## Count missing values: columns and rows -->
@@ -436,31 +424,7 @@ condes()
 
 <!-- ``` -->
 
-<!-- # Imputation -->
-
-<!-- ```{r} -->
-<!-- # missMDA -->
-<!-- library(missMDA) -->
-<!-- names(df) -->
-<!-- #> names(df) -->
-<!-- # [1] "age"            "job"            "marital"        -->
-<!-- # [4] "education"      "default"        "housing"        -->
-<!-- # [7] "loan"           "contact"        "month"          -->
-<!-- #[10] "day_of_week"    "duration"       "campaign"       -->
-<!-- #[13] "pdays"          "previous"       "poutcome"       -->
-<!-- #[16] "emp.var.rate"   "cons.price.idx" "cons.conf.idx"  -->
-<!-- #[19] "euribor3m"      "nr.employed"    "y"              -->
-<!-- #[22] "season"         "f.season"       -->
-
-<!-- summary(df) # Lists of vars numeric and factors -->
-<!-- vars_con<-names(df)[c(1,11:14,16:20)] -->
-<!-- vars_dis<-names(df)[c(2:10,15,21:23)] -->
-<!-- summary(df[,vars_con]) -->
-
-<!-- res.impn<-imputePCA(df[,vars_con],ncp=5) -->
-<!-- attributes(res.impn) -->
-<!-- # data.frame with all NA imputed: res.impn$completeObs -->
-<!-- summary(res.impn$completeObs) -->
+ 
 
 <!-- # Check before and after imputation for every variable (numeric) -->
 
