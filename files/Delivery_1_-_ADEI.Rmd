@@ -138,6 +138,11 @@ df$pdays[sel] <- NA
 df$pdays <- factor(df$pdays)
 summary(df$pdays)
 
+#Poutcome
+sel<-which(df$poutcome=="nonexistent");length(sel)
+df$poutcome[sel] <- NA
+df$poutcome <- factor(df$poutcome)
+summary(df$poutcome)
 ```
 
 
@@ -456,18 +461,16 @@ vmiss<-rep(0,nrow(df))
 nInitialVariables<- 21
 nmiss<-rep(0,nInitialVariables)
 
-initialColumns <- 0:21
-names(nmiss) <- names(df[initialColumns])
-names(df[initialColumns])
+initialVariables <- 0:21
+names(nmiss) <- names(df[initialVariables])
+names(df[initialVariables])
 
 for(j in 1:21) {
   nmiss[j]<-nmiss[j]+sum(is.na(df[,j]))
 }
-nmiss
 
 nmiss_aux <- nmiss[ nmiss != 0 ]
 nmiss_aux <- sort(nmiss_aux, decreasing = TRUE)
-nmiss_aux
 
 barplot(nmiss_aux, col="yellow", main="Variables with missing values");
 ```
@@ -476,17 +479,127 @@ Al barplot sols apareixen les variables amb dades mancants.
 ##Errors
 ```{r}
 verrs<-rep(0, nrow(df))
-nerrs<-rep(0, ncol(df))
-names(nerrs)<-names(df)
-#### poutcome
-v<-c("failure", "nonexistent", "success")
+
+nInitialVariables<- 21
+nerrs<-rep(0, nInitialVariables)
+
+initialVariables <- 0:21
+names(nerrs) <- names(df[initialVariables])
+names(df[initialVariables])
+```
+
+### Job
+```{r}
+v<-c("admin.", "blue-collar", "entrepreneur", "housemaid", "management", "retired", "self-employed","services","student","technician","unemployed",NA)
+llista<-which(!is.element(df[2], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[2]<-nerrs[2]+sum(!is.element(df[,2], v))
+```
+
+### Marital
+```{r}
+v<-c("divorced", "married", "single", NA)
+llista<-which(!is.element(df[3], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[3]<-nerrs[3]+sum(!is.element(df[,3], v))
+```
+
+### Education
+```{r}
+v<-c("Edu-basic.4y", "Edu-basic.6y", "Edu-basic.9y", "Edu-high.school", "Edu-illiterate", "Edu-professional.course", "Edu-university.degree", NA)
+llista<-which(!is.element(df[4], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[4]<-nerrs[4]+sum(!is.element(df[,4], v))
+```
+
+### Default
+```{r}
+v<-c("no", "yes", NA)
+llista<-which(!is.element(df[5], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[5]<-nerrs[5]+sum(!is.element(df[,5], v))
+```
+
+### Housing
+```{r}
+v<-c("no", "yes", NA)
+llista<-which(!is.element(df[6], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[6]<-nerrs[6]+sum(!is.element(df[,6], v))
+```
+
+### Loan
+```{r}
+v<-c("no", "yes", NA)
+llista<-which(!is.element(df[7], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[7]<-nerrs[7]+sum(!is.element(df[,7], v))
+```
+
+### Contact
+```{r}
+v<-c("cellular", "telephone", NA)
+llista<-which(!is.element(df[8], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[8]<-nerrs[8]+sum(!is.element(df[,8], v))
+```
+
+### Month
+```{r}
+v<-c("apr", "aug", "dec", "jul", "jun", "mar", "may", "nov", "oct", "sep", "jan", "feb", NA)
+llista<-which(!is.element(df[9], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[9]<-nerrs[9]+sum(!is.element(df[,9], v))
+```
+
+### Day of week
+```{r}
+v<-c("mon", "tue", "wed", "thu", "fri", NA)
+llista<-which(!is.element(df[10], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[10]<-nerrs[10]+sum(!is.element(df[,10], v))
+```
+
+### Poutcome
+```{r}
+v<-c("failure", "success", NA)
 llista<-which(!is.element(df[,15], v));
 verrs[llista]<-verrs[llista]+1
 nerrs[15]<-nerrs[15]+sum(!is.element(df[,15], v))
+```
+
+### Y
+```{r}
+v<-c("yes", "no", NA)
+llista<-which(!is.element(df[21], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[21]<-nerrs[21]+sum(!is.element(df[,21], v))
+```
+
+Així els errors queden:
+```{r}
 nerrs
 ```
 
+
 ##Outliers
+```{r}
+vout<-rep(0,nrow(df))
+
+nInitialVariables<- 21
+nout<-rep(0,nInitialVariables)
+
+initialVariables <- 0:21
+names(nout) <- names(df[initialVariables])
+names(df[initialVariables])
+```
+
+
+Així els outliers queden:
+```{r}
+nout
+```
+
 ###Age
 ```{r}
 boxplot(df$age)
