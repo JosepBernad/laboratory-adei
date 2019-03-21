@@ -94,7 +94,7 @@ summary(df)
 #Univariate Descriptive Analysis
 Creem factors per cada variable posant abans NA a aquells valos erronis o faltants.
 
-##Transform missing and wrong data to NA's
+##Transform missing and wrong data to NAs
 ```{r}
 #Default
 sel<-which(df$default=="unknown");length(sel)
@@ -125,7 +125,7 @@ sel<-which(df$job=="unknown");length(sel)
 df$job[sel] <- NA
 df$job <- factor(df$job)
 summary(df$job)
-
+S
 #Education
 sel<-which(df$education=="unknown");length(sel)
 df$education[sel] <- NA
@@ -452,15 +452,27 @@ pie(aux,labels = lbls,
 ##Missing Values
 ```{r}
 vmiss<-rep(0,nrow(df))
-nmiss<-rep(0,21)
-names(nmiss) <- names(df[0:21])
-names(df[0:21])
+
+nInitialVariables<- 21
+nmiss<-rep(0,nInitialVariables)
+
+initialColumns <- 0:21
+names(nmiss) <- names(df[initialColumns])
+names(df[initialColumns])
+
 for(j in 1:21) {
-nmiss[j]<-nmiss[j]+sum(is.na(df[,j]))
+  nmiss[j]<-nmiss[j]+sum(is.na(df[,j]))
 }
 nmiss
-summary(df$pdays)
+
+nmiss_aux <- nmiss[ nmiss != 0 ]
+nmiss_aux <- sort(nmiss_aux, decreasing = TRUE)
+nmiss_aux
+
+barplot(nmiss_aux, col="yellow", main="Variables with missing values");
 ```
+Al barplot sols apareixen les variables amb dades mancants.
+
 ##Errors
 ```{r}
 verrs<-rep(0, nrow(df))
@@ -473,6 +485,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[15]<-nerrs[15]+sum(!is.element(df[,15], v))
 nerrs
 ```
+
 ##Outliers
 ###Age
 ```{r}
@@ -482,6 +495,7 @@ boxplot(df$campaign)
 boxplot(df$previous)
 summary(df$previous)
 ```
+
 #Imputation
 
 

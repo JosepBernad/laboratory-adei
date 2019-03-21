@@ -1,0 +1,62 @@
+---
+title: "Class"
+author: "Josep Bernad"
+date: "3/21/2019"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = T,
+                      results = "hide")
+```
+
+## Download files
+```{r}
+library(FactoMineR)
+temperature <- read.table("http://factominer.free.fr/book/temperature.csv", header = TRUE, sep=";", dec = ".", row.names = 1)
+summary(temperature)
+```
+
+
+```{r}
+res <- PCA(temperature[,1:16], quanti.sup=13:16)
+
+
+# Capitals are active rows | Jan to Dec active variables
+  # Active individudals: 1:23 (Capitals)
+  # Suplementary individudals: 24:35 (Non capitals) -> #ind.sup = 24:35
+
+  # Active quantitative variables: 1:12 (Jan-Desc)
+  # Suplementary quantitative variables 13:16 (Non months) -> #quanti.sup = 13:16
+  # Suplementary qualitatives variables 17 (Non months) -> #quali.sup = 17
+
+# Colors
+  # Black: Active
+  # Blue: Suplementary individuals
+  # Pink-magenta: Gravity center of each category (North, South, East, West)
+res<- PCA(temperature, ind.sup = 24:35, quanti.sup = 13:16, quali.sup = 17)
+
+
+
+summary(res, nb.dec = 2, ncp = 4, nbelements = 12)
+
+attributes(res)
+attributes(res$var)
+
+res$ind$coord[,1:2]
+res$ind$contrib[,1:2]
+
+sum(res$ind$contrib[,1])
+sum(res$ind$cos2[1,])
+# Inercia: variablitat de les dades
+```
+
+
+Library for PCA plots
+```{r}
+#factoextra - ggplot 2
+```
+
