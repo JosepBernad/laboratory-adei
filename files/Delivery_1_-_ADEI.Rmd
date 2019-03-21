@@ -82,12 +82,12 @@ lapply(requiredPackages, require, character.only = TRUE)
 #file_path <- "Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory"
 
 # Alex
-#setwd("D:/Google Drive/Uni/ADEI/data-directory")
-#file_path <- "D:/Google Drive/Uni/ADEI/data-directory"
+setwd("D:/Google Drive/Uni/ADEI/data-directory")
+file_path <- "D:/Google Drive/Uni/ADEI/data-directory"
 
 #load(paste0("D:/Google Drive/Uni/ADEI/data-directory","5000_samples.RData"))
-#load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
-#summary(df)
+load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+summary(df)
 ```
 
 
