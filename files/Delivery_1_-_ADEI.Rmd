@@ -82,12 +82,12 @@ lapply(requiredPackages, require, character.only = TRUE)
 #file_path <- "Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory"
 
 # Alex
-setwd("D:/Google Drive/Uni/ADEI/data-directory")
-file_path <- "D:/Google Drive/Uni/ADEI/data-directory"
+#setwd("D:/Google Drive/Uni/ADEI/data-directory")
+#file_path <- "D:/Google Drive/Uni/ADEI/data-directory"
 
 #load(paste0("D:/Google Drive/Uni/ADEI/data-directory","5000_samples.RData"))
-load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
-summary(df)
+#load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+#summary(df)
 ```
 
 
@@ -289,7 +289,7 @@ levels(df$f.age)<-paste0("f.age-",levels(df$f.age))
 ##Age
 ```{r}
 summary(df$age)
-barplot(table(df$age), main= "Age")
+barplot(table(df$age), main= "Age",col="yellow")
 summary(df$f.age)
 barplot(table(df$f.age), main="Age groups",names.arg=c("17 a 30","30 a 40","40 a 50",">50"),col="yellow")
 ```
@@ -301,16 +301,17 @@ pie(table(df$job), main= "Job")
 aux <- table(df$f.jobsituation)
 pct <- round(aux/sum(aux)*100)
 lbls <- paste(names(aux), "\n", pct, sep="")
-lbls <- paste(lbls,"%",sep="") # ad % to labels 
+lbls <- paste(lbls,"%",sep="") # add % to labels
 pie(aux,labels = lbls, main="Job Situation")
 ```
+
 ##Marital
 ```{r}
 table(df$marital)
 aux <- table(df$marital)
 pct <- round(aux/sum(aux)*100)
 lbls <- paste(names(aux), "\n", pct, sep="")
-lbls <- paste(lbls,"%",sep="") # ad % to labels 
+lbls <- paste(lbls,"%",sep="") # add % to labels 
 pie(aux,labels = lbls, main="Marital Situation")
 ```
 ##Education
@@ -323,6 +324,7 @@ lbls <- paste(names(aux), "\n", pct, sep="")
 lbls <- paste(lbls,"%",sep="") # ad % to labels 
 pie(aux,labels = lbls, main="Education Level")
 ```
+
 ##Default-Housing-Loan
 ```{r}
 table(df$default)
@@ -340,7 +342,14 @@ pct <- round(aux/sum(aux)*100)
 lbls <- paste(names(aux), "\n", pct, sep="")
 lbls <- paste(lbls,"%",sep="") # ad % to labels 
 pie(aux,labels = lbls, main="Housing Loan")
+
+# Retornar l'attach a l'estat predeterminat
+attach(mtcars)
+par(mfrow=c(1,1))
 ```
+Com es pot veure no hem el gràfic de deutes, ja que el 100% d'individus que han contestat a l'enquesta no en tenien.
+
+
 ##Contact Device
 ```{r}
 table(df$contact)
@@ -350,12 +359,26 @@ lbls <- paste(names(aux), "\n", pct, sep="")
 lbls <- paste(lbls,"%",sep="") # ad % to labels 
 pie(aux,labels = lbls, main="Contact Device")
 ```
-##Date
+
+
+##Date - Month and season
 ```{r}
 table(df$month)
 table(df$f.season)
+
+barplot(table(df$month), main= "Month", col="yellow")
+
+aux <- table(df$f.season)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Season")
+```
+
+##Date - Day of the week
+```{r}
 table(df$day_of_week)
-#par(mfrow=c(1,2))
 barplot(table(df$f.season), main= "Season", col="darkblue")
 aux <- table(df$day_of_week)
 pct <- round(aux/sum(aux)*100)
@@ -364,12 +387,65 @@ lbls <- paste(lbls,"%",sep="") # ad % to labels
 pie(aux,labels = lbls,
    main="Day of the week")
 ```
-#
+
 ##Duration
 ```{r}
 summary(df$duration)
-barplot(table(df$duration),col="yellow",border="red")
+barplot(table(df$duration),col="yellow",border="red", main="Call duration")
 
+```
+
+##Campaign
+```{r}
+summary(df$campaign)
+
+barplot(table(df$campaign),col="yellow", main="Number of campaigns previously contacted")
+```
+
+
+##PDays
+```{r}
+summary(df$campaign)
+barplot(table(df$pdays),col="yellow", main="Number of days between the last contact")
+
+table(df$f.prev_contacted)
+aux <- table(df$f.prev_contacted)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Was previously contacted?")
+```
+
+
+##Prevously
+```{r}
+summary(df$previous)
+table(df$previous)
+barplot(table(df$previous),col="yellow", main="Number of contacts before this campaign")
+```
+
+##POutcome
+```{r}
+table(df$poutcome)
+aux <- table(df$poutcome)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Outome of the previous marketing campaign")
+```
+
+##Y
+```{r}
+table(df$y)
+
+aux <- table(df$y)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Binary target")
 ```
 
 #Data Quality Report
