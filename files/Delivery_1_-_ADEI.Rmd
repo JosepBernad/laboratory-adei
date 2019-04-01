@@ -78,15 +78,16 @@ lapply(requiredPackages, require, character.only = TRUE)
 #setwd("D:/DOCENCIA/FIB-ADEI/PRACTICA/BankMarketing")
 
 # Josep
-#setwd("/Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory")
-#file_path <- "Users/SigmundFreud/Developer/r-studio/laboratory-adei/data-directory"
+setwd("~/Developer/r-studio/laboratory-adei/data-directory")
+load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
 
 # Alex
-setwd("D:/Google Drive/Uni/ADEI/data-directory")
-file_path <- "D:/Google Drive/Uni/ADEI/data-directory"
+#setwd("D:/Google Drive/Uni/ADEI/data-directory")
+#file_path <- "D:/Google Drive/Uni/ADEI/data-directory"
 
 #load(paste0("D:/Google Drive/Uni/ADEI/data-directory","5000_samples.RData"))
-load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+#load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+
 summary(df)
 ```
 
