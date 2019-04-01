@@ -64,14 +64,13 @@ Deliverables are concerned with Multivariant Data Analysis and model building fo
 requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA")
 missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/current/Resources/library")[,"Package"]))]
 
-missingPackages
-#if(length(missingPackages)) install.packages(missingPackages)
-install.packages(requiredPackages,dependencies = TRUE,repos = c("http://rstudio.org/_packages","http://cran.rstudio.com"))
-lapply(requiredPackages, require, character.only = TRUE)
-```
+# TODO: Add Alex's library location
+#missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="alex/library/location")[,"Package"]))]
 
-```{r}
-install.packages("factoextra")
+missingPackages
+if(length(missingPackages)) install.packages(missingPackages)
+#install.packages(requiredPackages,dependencies = TRUE,repos = c("http://rstudio.org/_packages","http://cran.rstudio.com"))
+lapply(requiredPackages, require, character.only = TRUE)
 ```
 
 
