@@ -62,12 +62,18 @@ Deliverables are concerned with Multivariant Data Analysis and model building fo
 
 ```{r, include=FALSE}
 requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA")
-missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="~/R/win-library/3.5")[,"Package"]))]
+missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/current/Resources/library")[,"Package"]))]
 
+missingPackages
 #if(length(missingPackages)) install.packages(missingPackages)
 install.packages(requiredPackages,dependencies = TRUE,repos = c("http://rstudio.org/_packages","http://cran.rstudio.com"))
 lapply(requiredPackages, require, character.only = TRUE)
 ```
+
+```{r}
+install.packages("factoextra")
+```
+
 
 # Loading data
 ```{r}
@@ -582,7 +588,7 @@ nerrs
 ```
 
 
-##Outliers
+## Outliers
 ```{r}
 vout<-rep(0,nrow(df))
 
@@ -592,6 +598,12 @@ nout<-rep(0,nInitialVariables)
 initialVariables <- 0:21
 names(nout) <- names(df[initialVariables])
 names(df[initialVariables])
+```
+
+### Age
+```{r}
+IQR <- calcQ(df$age)$q3 - calcQ(df$age)$q1
+IQR
 ```
 
 
