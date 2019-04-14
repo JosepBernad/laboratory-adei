@@ -83,15 +83,12 @@ lapply(requiredPackages, require, character.only = TRUE)
 #setwd("D:/DOCENCIA/FIB-ADEI/PRACTICA/BankMarketing")
 
 # Josep
-setwd("~/Developer/r-studio/laboratory-adei/data-directory")
-load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
+#setwd("~/Developer/r-studio/laboratory-adei/data-directory")
+#load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
 
 # Alex
-#setwd("D:/Google Drive/Uni/ADEI/data-directory")
-#file_path <- "D:/Google Drive/Uni/ADEI/data-directory"
-
-#load(paste0("D:/Google Drive/Uni/ADEI/data-directory","5000_samples.RData"))
-#load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+setwd("D:/Google Drive/Uni/ADEI/data-directory")
+load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
 
 summary(df)
 ```
@@ -478,6 +475,8 @@ for(j in 1:21) {
 nmiss_aux <- nmiss[ nmiss != 0 ]
 nmiss_aux <- sort(nmiss_aux, decreasing = TRUE)
 
+table(nmiss_aux)
+
 barplot(nmiss_aux, col="yellow", main="Variables with missing values");
 ```
 Al barplot sols apareixen les variables amb dades mancants.
@@ -603,9 +602,48 @@ names(df[initialVariables])
 ### Age
 ```{r}
 IQR <- calcQ(df$age)$q3 - calcQ(df$age)$q1
-IQR
+boxplot(df$age)
+mout <- c(calcQ(df$age)$q1 - IQR*1.5, calcQ(df$age)$q3 + IQR*1.5);mout;
+sout <- c(calcQ(df$age)$q1 - IQR*3, calcQ(df$age)$q3 + IQR*3);sout;
+abline(h= mout, col="blue",lwd=2)
+abline(h=sout,col="red",lwd=2)
 ```
-
+###duration
+```{r}
+IQR <- calcQ(df$duration)$q3 - calcQ(df$duration)$q1
+boxplot(df$duration)
+mout <- c(calcQ(df$duration)$q1 - IQR*1.5, calcQ(df$duration)$q3 + IQR*1.5);mout;
+sout <- c(calcQ(df$duration)$q1 - IQR*3, calcQ(df$duration)$q3 + IQR*3);sout;
+abline(h= mout, col="blue",lwd=2)
+abline(h=sout,col="red",lwd=2)
+```
+###campaign
+```{r}
+IQR <- calcQ(df$campaign)$q3 - calcQ(df$campaign)$q1
+boxplot(df$campaign)
+mout <- c(calcQ(df$campaign)$q1 - IQR*1.5, calcQ(df$campaign)$q3 + IQR*1.5);mout;
+sout <- c(calcQ(df$campaign)$q1 - IQR*3, calcQ(df$campaign)$q3 + IQR*3);sout;
+abline(h= mout, col="blue",lwd=2)
+abline(h=sout,col="red",lwd=2)
+```
+###pdays
+```{r}
+IQR <- calcQ(df$pdays)$q3 - calcQ(df$pdays)$q1
+boxplot(df$pdays)
+mout <- c(calcQ(df$pdays)$q1 - IQR*1.5, calcQ(df$pdays)$q3 + IQR*1.5);mout;
+sout <- c(calcQ(df$pdays)$q1 - IQR*3, calcQ(df$pdays)$q3 + IQR*3);sout;
+abline(h= mout, col="blue",lwd=2)
+abline(h=sout,col="red",lwd=2)
+```
+###previous
+```{r}
+IQR <- calcQ(df$previous)$q3 - calcQ(df$previous)$q1
+boxplot(df$previous)
+mout <- c(calcQ(df$previous)$q1 - IQR*1.5, calcQ(df$previous)$q3 + IQR*1.5);mout;
+sout <- c(calcQ(df$previous)$q1 - IQR*3, calcQ(df$previous)$q3 + IQR*3);sout;
+abline(h= mout, col="blue",lwd=2)
+abline(h=sout,col="red",lwd=2)
+```
 
 Així els outliers queden:
 ```{r}
