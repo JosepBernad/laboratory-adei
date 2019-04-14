@@ -62,10 +62,9 @@ Deliverables are concerned with Multivariant Data Analysis and model building fo
 
 ```{r, include=FALSE}
 requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA")
-missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/current/Resources/library")[,"Package"]))]
+#missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/current/Resources/library")[,"Package"]))]
 
-# TODO: Add Alex's library location
-#missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="alex/library/location")[,"Package"]))]
+missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="D:/Program Files/R/R-3.5.2/library")[,"Package"]))]
 
 missingPackages
 if(length(missingPackages)) install.packages(missingPackages)
@@ -607,6 +606,11 @@ mout <- c(calcQ(df$age)$q1 - IQR*1.5, calcQ(df$age)$q3 + IQR*1.5);mout;
 sout <- c(calcQ(df$age)$q1 - IQR*3, calcQ(df$age)$q3 + IQR*3);sout;
 abline(h= mout, col="blue",lwd=2)
 abline(h=sout,col="red",lwd=2)
+
+outliers<-which(df$age>sout[2]);outliers;
+if(length(outliers)>0){
+vout[outliers]<-vout[outliers]+1
+nout["age"]<-length(outliers)}
 ```
 ###duration
 ```{r}
@@ -616,6 +620,10 @@ mout <- c(calcQ(df$duration)$q1 - IQR*1.5, calcQ(df$duration)$q3 + IQR*1.5);mout
 sout <- c(calcQ(df$duration)$q1 - IQR*3, calcQ(df$duration)$q3 + IQR*3);sout;
 abline(h= mout, col="blue",lwd=2)
 abline(h=sout,col="red",lwd=2)
+outliers<-which(df$duration>sout[2]);length(outliers);
+if(length(outliers)>0){
+vout[outliers]<-vout[outliers]+1
+nout["duration"]<-length(outliers)}
 ```
 ###campaign
 ```{r}
@@ -625,8 +633,12 @@ mout <- c(calcQ(df$campaign)$q1 - IQR*1.5, calcQ(df$campaign)$q3 + IQR*1.5);mout
 sout <- c(calcQ(df$campaign)$q1 - IQR*3, calcQ(df$campaign)$q3 + IQR*3);sout;
 abline(h= mout, col="blue",lwd=2)
 abline(h=sout,col="red",lwd=2)
+outliers<-which(df$campaign>sout[2]);length(outliers);
+if(length(outliers)>0){
+vout[outliers]<-vout[outliers]+1
+nout["campaign"]<-length(outliers)}
 ```
-###pdays
+###pdays NO FUNCIONA ENCARA
 ```{r}
 IQR <- calcQ(df$pdays)$q3 - calcQ(df$pdays)$q1
 boxplot(df$pdays)
@@ -643,20 +655,15 @@ mout <- c(calcQ(df$previous)$q1 - IQR*1.5, calcQ(df$previous)$q3 + IQR*1.5);mout
 sout <- c(calcQ(df$previous)$q1 - IQR*3, calcQ(df$previous)$q3 + IQR*3);sout;
 abline(h= mout, col="blue",lwd=2)
 abline(h=sout,col="red",lwd=2)
+outliers<-which(df$previous>sout[2]);length(outliers);
+if(length(outliers)>0){
+vout[outliers]<-vout[outliers]+1
+nout["previous"]<-length(outliers)}
 ```
 
 Així els outliers queden:
 ```{r}
 nout
-```
-
-###Age
-```{r}
-boxplot(df$age)
-boxplot(df$duration)
-boxplot(df$campaign)
-boxplot(df$previous)
-summary(df$previous)
 ```
 
 #Imputation
