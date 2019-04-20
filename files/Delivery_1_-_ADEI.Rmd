@@ -587,6 +587,7 @@ nerrs
 
 
 ## Outliers
+
 ```{r}
 vout<-rep(0,nrow(df))
 
@@ -600,48 +601,37 @@ names(df[initialVariables])
 
 ### Age
 ```{r}
-IQR <- calcQ(df$age)$q3 - calcQ(df$age)$q1
-boxplot(df$age)
-mout <- c(calcQ(df$age)$q1 - IQR*1.5, calcQ(df$age)$q3 + IQR*1.5);mout;
-sout <- c(calcQ(df$age)$q1 - IQR*3, calcQ(df$age)$q3 + IQR*3);sout;
-abline(h= mout, col="blue",lwd=2)
+Boxplot(df$age, ylab = "Age Boxplot")
+sout <- 80
 abline(h=sout,col="red",lwd=2)
-
-outliers<-which(df$age>sout[2]);outliers;
+outliers<-which(df$age>sout);outliers;
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["age"]<-length(outliers)}
 ```
 ###duration
 ```{r}
-IQR <- calcQ(df$duration)$q3 - calcQ(df$duration)$q1
-boxplot(df$duration)
-mout <- c(calcQ(df$duration)$q1 - IQR*1.5, calcQ(df$duration)$q3 + IQR*1.5);mout;
-sout <- c(calcQ(df$duration)$q1 - IQR*3, calcQ(df$duration)$q3 + IQR*3);sout;
-abline(h= mout, col="blue",lwd=2)
+Boxplot(df$duration)
+sout <- 1500
 abline(h=sout,col="red",lwd=2)
-outliers<-which(df$duration>sout[2]);length(outliers);
+outliers<-which(df$duration>sout);length(outliers);
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["duration"]<-length(outliers)}
 ```
 ###campaign
 ```{r}
-IQR <- calcQ(df$campaign)$q3 - calcQ(df$campaign)$q1
-boxplot(df$campaign)
-mout <- c(calcQ(df$campaign)$q1 - IQR*1.5, calcQ(df$campaign)$q3 + IQR*1.5);mout;
-sout <- c(calcQ(df$campaign)$q1 - IQR*3, calcQ(df$campaign)$q3 + IQR*3);sout;
-abline(h= mout, col="blue",lwd=2)
+Boxplot(df$campaign)
+sout <- 9
 abline(h=sout,col="red",lwd=2)
-outliers<-which(df$campaign>sout[2]);length(outliers);
+outliers<-which(df$campaign>sout);length(outliers);
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["campaign"]<-length(outliers)}
 ```
 ###pdays NO FUNCIONA ENCARA
 ```{r}
-IQR <- calcQ(df$pdays)$q3 - calcQ(df$pdays)$q1
-boxplot(df$pdays)
+Boxplot(df$pdays, na.action= NULL)
 mout <- c(calcQ(df$pdays)$q1 - IQR*1.5, calcQ(df$pdays)$q3 + IQR*1.5);mout;
 sout <- c(calcQ(df$pdays)$q1 - IQR*3, calcQ(df$pdays)$q3 + IQR*3);sout;
 abline(h= mout, col="blue",lwd=2)
@@ -649,13 +639,10 @@ abline(h=sout,col="red",lwd=2)
 ```
 ###previous
 ```{r}
-IQR <- calcQ(df$previous)$q3 - calcQ(df$previous)$q1
-boxplot(df$previous)
-mout <- c(calcQ(df$previous)$q1 - IQR*1.5, calcQ(df$previous)$q3 + IQR*1.5);mout;
-sout <- c(calcQ(df$previous)$q1 - IQR*3, calcQ(df$previous)$q3 + IQR*3);sout;
-abline(h= mout, col="blue",lwd=2)
+Boxplot(df$previous)
+sout <- 0
 abline(h=sout,col="red",lwd=2)
-outliers<-which(df$previous>sout[2]);length(outliers);
+outliers<-which(df$previous> sout);length(outliers);
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["previous"]<-length(outliers)}
