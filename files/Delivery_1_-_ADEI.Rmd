@@ -137,7 +137,6 @@ summary(df$education)
 #Pdays
 sel<-which(df$pdays==999);length(sel)
 df$pdays[sel] <- NA
-df$pdays <- factor(df$pdays)
 summary(df$pdays)
 
 #Poutcome
@@ -412,7 +411,7 @@ barplot(table(df$campaign),col="yellow", main="Number of campaigns previously co
 
 ##PDays
 ```{r}
-summary(df$campaign)
+summary(df$pdays)
 barplot(table(df$pdays),col="yellow", main="Number of days between the last contact")
 
 table(df$f.prev_contacted)
@@ -629,20 +628,23 @@ if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["campaign"]<-length(outliers)}
 ```
-###pdays NO FUNCIONA ENCARA
+###pdays 
 ```{r}
-Boxplot(df$pdays, na.action= NULL)
-mout <- c(calcQ(df$pdays)$q1 - IQR*1.5, calcQ(df$pdays)$q3 + IQR*1.5);mout;
-sout <- c(calcQ(df$pdays)$q1 - IQR*3, calcQ(df$pdays)$q3 + IQR*3);sout;
-abline(h= mout, col="blue",lwd=2)
-abline(h=sout,col="red",lwd=2)
+boxplot(df$pdays);
+sout <- 15;
+abline(h=sout,col="red",lwd=2); 
+outliers<-which(df$pdays> sout); length(outliers);
+if(length(outliers)>0){
+vout[outliers]<-vout[outliers]+1
+nout["pdays"]<-length(outliers)}
 ```
 ###previous
 ```{r}
 Boxplot(df$previous)
-sout <- 0
+sout <- 2
 abline(h=sout,col="red",lwd=2)
-outliers<-which(df$previous> sout);length(outliers);
+outliers<-which(df$previous> sout);
+length(outliers);
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["previous"]<-length(outliers)}
@@ -652,6 +654,48 @@ Així els outliers queden:
 ```{r}
 nout
 ```
+#Rank Variables
+```{r}
+miss <- sort(nmiss, decreasing =  TRUE)
+miss
+err <- sort(nerrs, decreasing =  TRUE)
+err
+miss <- sort(nmiss, decreasing =  TRUE)
+miss
+out <- sort(nout, decreasing =  TRUE)
+out
+
+ranking <- nmiss + nerrs + nout;
+ranking <- sort(ranking, decreasing = TRUE);
+ranking
+
+```
+##Individual
+```{r}
+vmis<-rep(0, nrow(df))
+nmis<-rep(0, ncol(df))
+for(i in 1:nrow(df)) {
+vmis[i]<-vmis[i]+sum(is.na(df[i,]))
+}
+### Create variable adding the total number missing values, outliers and errors
+df$outliers<-vout
+df$errors<-verrs
+df$missings<-vmis
+```
+#Correlation
+```{r}
+##Outliers
+condes(df, num.var = 22)
+##Errors
+#condes(df, num.var = 23) ##NO FUNCIONA, NO HI HA ERRORS
+##Missings
+condes(df, num.var = 24)
+```
+
+
+
+
+
 
 #Imputation
 
