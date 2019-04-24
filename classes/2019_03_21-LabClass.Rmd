@@ -29,7 +29,7 @@ res <- PCA(temperature[,1:16], quanti.sup=13:16)
   # Active individudals: 1:23 (Capitals)
   # Suplementary individudals: 24:35 (Non capitals) -> #ind.sup = 24:35
 
-  # Active quantitative variables: 1:12 (Jan-Desc)
+  # Active quantitative variables: 1:12 (Jan-Dec)
   # Suplementary quantitative variables 13:16 (Non months) -> #quanti.sup = 13:16
   # Suplementary qualitatives variables 17 (Non months) -> #quali.sup = 17
 
