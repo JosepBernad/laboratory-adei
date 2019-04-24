@@ -603,7 +603,8 @@ names(df[initialVariables])
 Boxplot(df$age, ylab = "Age Boxplot")
 sout <- 80
 abline(h=sout,col="red",lwd=2)
-outliers<-which(df$age>sout);outliers;
+outliers<-which(df$age>sout);length(outliers);
+df$age[outliers] <- NA;
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["age"]<-length(outliers)}
@@ -614,6 +615,7 @@ Boxplot(df$duration)
 sout <- 1500
 abline(h=sout,col="red",lwd=2)
 outliers<-which(df$duration>sout);length(outliers);
+df <- df[-outliers, ]
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["duration"]<-length(outliers)}
@@ -624,6 +626,7 @@ Boxplot(df$campaign)
 sout <- 9
 abline(h=sout,col="red",lwd=2)
 outliers<-which(df$campaign>sout);length(outliers);
+df$campaign[outliers] <- NA;
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["campaign"]<-length(outliers)}
@@ -634,6 +637,7 @@ boxplot(df$pdays);
 sout <- 15;
 abline(h=sout,col="red",lwd=2); 
 outliers<-which(df$pdays> sout); length(outliers);
+df$pdays[outliers] <- NA;
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["pdays"]<-length(outliers)}
@@ -644,6 +648,7 @@ Boxplot(df$previous)
 sout <- 2
 abline(h=sout,col="red",lwd=2)
 outliers<-which(df$previous> sout);
+df$previous[outliers] <- NA;
 length(outliers);
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
@@ -692,12 +697,39 @@ condes(df, num.var = 22)
 condes(df, num.var = 24)
 ```
 
+```{r}
+aggregate(df$missings, by=list(df$f.age), FUN=mean)
+aggregate(df$outliers, by=list(df$f.age), FUN=mean)
 
+aggregate(df$missings, by=list(df$f.jobsituation), FUN=mean)
+aggregate(df$outliers, by=list(df$f.jobsituation), FUN=mean)
 
+aggregate(df$missings, by=list(df$f.education), FUN=mean)
+aggregate(df$outliers, by=list(df$f.education), FUN=mean)
 
+aggregate(df$missings, by=list(df$f.marital), FUN=mean)
+aggregate(df$outliers, by=list(df$f.marital), FUN=mean)
+
+```
 
 
 #Imputation
+##Numeric Variables
+```{r}
+
+Outliers -> missings
+
+#Delete duration outliers
+outliers<-which(df$duration>1500);length(outliers);
+df <- df[-outliers, ]
+
+var_num <-names(df)[c(1, 11:14)]
+length(var_num)
+summary(df[,var_num])
+res <- imputePCA(df[,var_num],ncp=4)
+summary(res$completeObs)
+```
+
 
 
 <!-- ## Count missing values: columns and rows -->
