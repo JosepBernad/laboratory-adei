@@ -615,7 +615,6 @@ Boxplot(df$duration)
 sout <- 1500
 abline(h=sout,col="red",lwd=2)
 outliers<-which(df$duration>sout);length(outliers);
-df <- df[-outliers, ]
 if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["duration"]<-length(outliers)}
@@ -690,11 +689,11 @@ df$missings<-vmis
 #Correlation
 ```{r}
 ##Outliers
-condes(df, num.var = 22)
+condes(df, num.var = 35)
 ##Errors
-#condes(df, num.var = 23) ##NO FUNCIONA, NO HI HA ERRORS
+#condes(df, num.var = 36) ##NO FUNCIONA, NO HI HA ERRORS
 ##Missings
-condes(df, num.var = 24)
+condes(df, num.var = 37)
 ```
 
 ```{r}
@@ -717,81 +716,35 @@ aggregate(df$outliers, by=list(df$f.marital), FUN=mean)
 ##Numeric Variables
 ```{r}
 
-Outliers -> missings
+#Outliers -> missings
 
 #Delete duration outliers
 outliers<-which(df$duration>1500);length(outliers);
 df <- df[-outliers, ]
 
-var_num <-names(df)[c(1, 11:14)]
+var_num <-names(df)[c(1, 12:14)]
 length(var_num)
 summary(df[,var_num])
-res <- imputePCA(df[,var_num],ncp=4)
+res <- imputePCA(df[,var_num],ncp=3)
 summary(res$completeObs)
+
+#S'han imputat valors negatius a previous, els posem a 0
+
+sel <- which(res$completeObs[,"previous"] < 0)
+res$completeObs[sel,"previous"] <- 0
+
+df$age <- res$completeObs[,"age"]
+df$campaign <- res$completeObs[,"campaign"]
+df$pdays <- res$completeObs[,"pdays"]
+df$previous <- res$completeObs[,"previous"]
+```
+##Factors
+```{r}
+factors <-names(df)[c(28, 29, 31)];
+summary(df[,factors])
+resfact <- MCA(df[,factors])
+nb <- estim_ncpMCA(df[factors])
+resfact <- imputeMCA(df[,factors],ncp=0);
+summary(resfact$completeObs)
 ```
 
-
-
-<!-- ## Count missing values: columns and rows -->
-<!-- ```{r} -->
-
-<!-- # Some examples of pre-process (set to NA those considered NA) -->
-<!-- sel<-which(df$marital=="Marital-unknown");length(sel) -->
-<!-- df$marital[sel]<-NA -->
-
-<!-- # All missing data indicated as NA -->
-<!-- miss_row<-rowSums(is.na(df)) -->
-<!-- summary(miss_row) -->
-<!-- miss_col<-colSums(is.na(df)) -->
-<!-- miss_col -->
-
-<!-- ``` -->
-
- 
-
-<!-- # Check before and after imputation for every variable (numeric) -->
-
-<!-- # Trend and dispersion statistics -->
-<!-- quantile(df$pdays,seq(0,1,0.1),na.rm=T) -->
-<!-- quantile(res.impn$completeObs[,"pdays"],seq(0,1,0.1)) -->
-<!-- # Graphics -->
-<!-- par(mfrow=c(1,2)) -->
-<!-- Boxplot(df$pdays) -->
-<!-- Boxplot(res.impn$completeObs[,"pdays"]) -->
-<!-- par(mfrow=c(1,1)) -->
-
-<!-- # Save complete columns of your validated variables -->
-<!-- # df[,"varname"]<-res.impn$completeObs[,"varname"] -->
-
-<!-- df$pdays[is.na(df$pdays)]<-30 # Manual imputation -->
-<!-- summary(df$pdays) -->
-
-<!-- ``` -->
-
-<!-- ## Imputation of missing values in factors -->
-
-<!-- ```{r} -->
-<!-- summary(df[,vars_dis]) -->
-<!-- res.impf<-imputeMCA(df[,vars_dis],ncp=10) -->
-<!-- summary(res.impf$completeObs) -->
-
-<!-- # Only missing data at marital: I accept the imputation proposal -->
-
-<!-- df$marital<-res.impf$completeObs[,"marital"] -->
-<!-- summary(df[,vars_dis]) -->
-
-<!-- ``` -->
-
-<!-- ## Multivariant Outliers -->
-
-<!-- ```{r} -->
-<!-- # No missing data should be present!!! -->
-
-<!-- library(mvoutlier) -->
-<!-- # Consider subset of numeric variables -->
-<!-- summary(df[,vars_con]) -->
-<!-- vars_con -->
-<!-- vars_con_sub<-vars_con[c(1,2,6:10)] -->
-<!-- aq.plot(df[,vars_con_sub],delta=qchisq(0.995, df=ncol(x))) -->
-
-<!-- ``` -->
