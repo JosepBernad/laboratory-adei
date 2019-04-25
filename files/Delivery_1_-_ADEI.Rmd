@@ -791,7 +791,12 @@ table(df$f.default)
 
 #Profiling
 ```{r}
-
+condes(df[c(1:29, 31:34,38)],11)
+catdes(df, num.var = 21)
 ```
+
+#Deliverable II PCA, CA and Clustering
+
+
 
 
