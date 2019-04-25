@@ -882,6 +882,59 @@ dimdesc(newres.pca, axes = 1:3)
 #En canvi el tercer eix de dimensions està altament relacionat amb el numero de vegades que un clientha estat conatctat durant aquesta campanya.
 ```
 
+##K-Means Classification
+```{r}
+set.seed(676489)
+
+summary(res.pca)
+opt <- kmeans(res.pca$ind$coord[,1:3], centers = 1)$betweenss
+opt[2] <- kmeans(res.pca$ind$coord[,1:3], centers = 2)$betweenss
+opt[3] <- kmeans(res.pca$ind$coord[,1:3], centers = 3)$betweenss
+opt[4] <- kmeans(res.pca$ind$coord[,1:3], centers = 4)$betweenss
+opt[5] <- kmeans(res.pca$ind$coord[,1:3], centers = 5)$betweenss
+opt[6] <- kmeans(res.pca$ind$coord[,1:3], centers = 6)$betweenss
+opt[7] <- kmeans(res.pca$ind$coord[,1:3], centers = 7)$betweenss
+opt[8] <- kmeans(res.pca$ind$coord[,1:3], centers = 8)$betweenss
+opt[9] <- kmeans(res.pca$ind$coord[,1:3], centers = 9)$betweenss
+opt[10] <- kmeans(res.pca$ind$coord[,1:3], centers = 10)$betweenss
+
+
+plot(opt, type = "b")
+abline(v = 8, col = "red")
+```
+Com podem comprovar en el gràfic de forma visual, trobem un pic en el moment en que el nombre de clusters és optim. En aquest cas n'utilitzarem 7.
+###Description of clusters
+```{r}
+set.seed(676489)
+def <- kmeans(res.pca$ind$coord[,1:3], centers = 8)
+df$kmeansclu<-factor(def$cluster)
+
+vclust <- c(vfact, vnum, "kmeansclu")
+targ <- which(vclust == "kmeansclu")
+catdes(df[,vclust], targ)
+```
+##Hierarchical Clustering
+```{r}
+#Després de comprovar el nombre optim de cluster a definir interaccionant amb el plot, hem vist que és 5.
+clust <- HCPC(res.pca, nb.clust = 5, order = TRUE)
+```
+###Description of clusters
+```{r}
+clust$desc.var
+clust$desc.axes
+clust$desc.ind
+```
+##CA analysis
+```{r}
+
+```
+
+
+
+
+
+
+
 
 
 
