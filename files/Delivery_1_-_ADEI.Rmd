@@ -918,10 +918,17 @@ clust <- HCPC(res.pca, nb.clust = 5, order = TRUE)
 ```{r}
 clust$desc.var
 clust$desc.axes
-clust$desc.ind
 
-######### TODO ÀLEX 
+#Individus que són més propers i més lluny al centre dels diferents clusters.
+clust$desc.ind
 ```
+En la divisió de clusters per les seves variables podem trobar dos primers clusters altament relacionats amb la variable previous, persones que havien estat contactades anteriorment. En el cas del primer, també es important veure la relació que el cluster té amb els dies que han passat des de l'ultim contacte. Del segon cluster també obtenim relacions socioeconòmiques negatives i amb una important presència.
+
+Per altra banda el cluster numero 3 unicament obté relacions en el sentit negatiu i principalment de variables socioeconòmiques. Totalment el contrari que el cluster numero 4.
+
+Acabem amb el cluster 5. En aquest cas els individus majoritariament havien estat contactats més d'una vegada durant la campanya actual, aquests tambñe gaudeixen d'una relació positiva amb les variables socioeconòmiques.
+
+Pel que fa als eixos resumidament podem dir que el cluster numero 1 està ben representat en la dimensió 3 i 4. El cluster 2 està ben representat en la dimensió 2,4 i 5 però molt malt repsentat en la dimensió 1. Seguidament el cluster 3 veiem que estpa mal representat en totes les dimensions existents. El 4 gaudeix de bona representació en les dues primeres dimencions. I per acabar el cluster numero 5 gaudeix de bona representació en la dimensió 4 i 1 per contra no li beneficia la dimensió 2.
 
 ```{r}
 summary(df$duration)
