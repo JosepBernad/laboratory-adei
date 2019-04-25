@@ -254,7 +254,8 @@ table(df$f.marital);summary(df$f.marital);
 
 #Default
 df$f.default<-factor(df$default, labels=paste("f",sep=".",levels(df$default)))
-table(df$f.default);summary(df$f.default)
+df$f.default <- factor(df$f.default , levels = c(levels(df$f.default), "f.si"))
+table(df$f.default);
 
 #Loan
 df$f.loan<-factor(df$loan,labels=paste("f",sep=".",levels(df$loan)))
@@ -722,10 +723,10 @@ aggregate(df$outliers, by=list(df$f.marital), FUN=mean)
 outliers<-which(df$duration>1500);length(outliers);
 df <- df[-outliers, ]
 
-var_num <-names(df)[c(1, 12:14)]
+var_num <-names(df)[c(1, 12:14)] ## age,campaign,pdays,previous
 length(var_num)
 summary(df[,var_num])
-res <- imputePCA(df[,var_num],ncp=3)
+res <- imputePCA(df[,var_num],ncp=2)
 summary(res$completeObs)
 
 #S'han imputat valors negatius a previous, els posem a 0
@@ -740,11 +741,57 @@ df$previous <- res$completeObs[,"previous"]
 ```
 ##Factors
 ```{r}
-factors <-names(df)[c(28, 29, 31)];
+# TODO: ADD f.yes in f.loan with value 0 
+factors <-names(df)[c(24,28, 29 ,31)]; # f.job, f.housing, f.marital, f.loan
 summary(df[,factors])
-resfact <- MCA(df[,factors])
-nb <- estim_ncpMCA(df[factors])
-resfact <- imputeMCA(df[,factors],ncp=0);
+resfact <- imputeMCA(df[,factors],ncp=3);
 summary(resfact$completeObs)
+
+df$f.housing <- resfact$completeObs[,"f.housing"]
+df$f.marital <- resfact$completeObs[,"f.marital"]
+df$f.loan <- resfact$completeObs[,"f.loan"]
+df$f.job <- resfact$completeObs[,"f.job"]
 ```
+
+
+```{r}
+#Imputem manualment poutcome ja que pensem que els que no han respós a la pregunta molt probablement tampoc havien sigut contactats amb anterioritat.
+
+sel <- which(is.na(df$poutcome))
+
+df$poutcome <- factor(df$poutcome, labels=paste("Pout", sep="-", levels(df$poutcome)))
+
+table(df$poutcome)
+
+df$f.poutcome<-2
+
+# 1 level - failure
+sel<-which(df$poutcome %in% c("Pout-failure"))
+df$f.poutcome[sel] <- 1
+sel<- which(is.na(df$poutcome))
+df$f.poutcome[sel] <- 1
+table(df$f.poutcome)
+
+# 2 level - success
+sel<-which(df$poutcome %in% c("Pout-success"))
+df$f.poutcome[sel] <- 2
+summary(df$f.education)
+df$f.poutcome<-factor(df$f.poutcome,levels=1:2,labels=c("f.Pout-failure","f.Pout-success"))
+summary(df$f.poutcome)
+```
+
+
+```{r}
+#Imputem manualment default ja que pensem que els que no han respós a la pregunta no poden ser imputats a la repsosta afirmativa, tot i ser concients que seria totalment probable.
+
+sel <- which(is.na(df$default))
+df$f.default[sel] <- "f.no"
+table(df$f.default)
+```
+
+#Profiling
+```{r}
+
+```
+
 
