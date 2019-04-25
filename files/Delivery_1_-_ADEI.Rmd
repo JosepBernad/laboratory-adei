@@ -78,9 +78,6 @@ lapply(requiredPackages, require, character.only = TRUE)
 #rm(list=ls())
 # Load Required Packages: to be increased over the course
 
-#setwd("C:/Users/lmontero/Dropbox/DOCENCIA/FIB-ADEI/PRACTICA/BankMarketing")
-#setwd("D:/DOCENCIA/FIB-ADEI/PRACTICA/BankMarketing")
-
 # Josep
 #setwd("~/Developer/r-studio/laboratory-adei/data-directory")
 #load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
@@ -270,8 +267,6 @@ df$f.day<-factor(df$day_of_week,labels=paste("f.day",sep=".",levels(df$day)))
 table(df$f.day);summary(df$f.day)
 
 ```
-
-
 
 ## Create new factors corresponding to quantitative concepts.
 ### Age discreatization
@@ -692,7 +687,7 @@ df$missings<-vmis
 ##Outliers
 condes(df, num.var = 35)
 ##Errors
-#condes(df, num.var = 36) ##NO FUNCIONA, NO HI HA ERRORS
+##condes(df, num.var = 36) 
 ##Missings
 condes(df, num.var = 37)
 ```
@@ -741,7 +736,6 @@ df$previous <- res$completeObs[,"previous"]
 ```
 ##Factors
 ```{r}
-# TODO: ADD f.yes in f.loan with value 0 
 factors <-names(df)[c(24,28, 29 ,31)]; # f.job, f.housing, f.marital, f.loan
 summary(df[,factors])
 resfact <- imputeMCA(df[,factors],ncp=3);
@@ -912,6 +906,8 @@ df$kmeansclu<-factor(def$cluster)
 vclust <- c(vfact, vnum, "kmeansclu")
 targ <- which(vclust == "kmeansclu")
 catdes(df[,vclust], targ)
+
+###### TODO JOSEP
 ```
 ##Hierarchical Clustering
 ```{r}
@@ -923,11 +919,55 @@ clust <- HCPC(res.pca, nb.clust = 5, order = TRUE)
 clust$desc.var
 clust$desc.axes
 clust$desc.ind
+
+######### TODO ÀLEX 
 ```
-##CA analysis
+
 ```{r}
+summary(df$duration)
+qulist<-quantile(df$duration,seq(0,1,0.125),na.rm=TRUE)
+df$f.duration<-factor(cut(df$duration,breaks=c(4,64,103,140,181,235,326,496,1499),include.lowest=T))
+
+summary(df$f.duration)
+levels(df$f.duration)<-paste0("f.duration-",levels(df$f.duration))
+```
+
+##CA analysis
+Per a realitzar l'anàlisis de correspondència simples utilitzarem dos factors sorgits de la neteja de les dades. En aquest cas farem l'estudi amb el factor f.jobsituation i el factor f.age.
+### f.duration - f.job
+```{r}
+t <- table(df$f.job, df$f.duration); t;
+chisq.test(t)
+t <- CA(t)
 
 ```
+Com que el p-value és més petit que 0,05 rebutgem la hipòtesis de independència entre els dos factors. Trobem una certa relació entre les trucades amb més durada i els treballadors en el sector dels serveis. Per altre banda, retirats i estudiants son els que més relació tenen amb les trucades curtes.
+####Eigenvalues and dominant axes analysis
+```{r}
+t(t$eig)
+```
+En aquest punt escollim utilitzar les 4 primeres dimensions, aquestes superen en escreix el limit del 80% de representació.
+```{r}
+t$col$cos2[,1:4]
+```
+Destaquem que la dimensió 3 i 4 realitzen una representació molt lleu de les nostres dades. En canvi la dimensió 1 té en compte les trucades de durada mitjana i en canvi en la tercera dimensió i juguen un paper bastant  important les trucades de major durada de la mostra. 
+
+### f.duration - f.age
+```{r}
+t <- table(df$f.season, df$f.duration); t;
+chisq.test(t)
+t <- CA(t)
+```
+Com que el p-value és més petit que 0,05 rebutgem la hipòtesis de independència entre els dos factors. En conjunt podem veure que al voltant de la primavera es situen les trucades amb una durada superior. En canvi, a l'estiu passa totalment el contrari. 
+####Eigenvalues and dominant axes analysis
+```{r}
+t(t$eig)
+```
+En aquest punt escollim utilitzar les dues uniques dimensión per a poder fer-ne una posterior valoració.
+```{r}
+t$col$cos2[,1:2]
+```
+Tot i que la primera dimensió representa en gran escreix la major part de les dades, podem comentar que en la dimensió numero dos es veuen molt millor representades les trucades amb una major durada i també les de durades intermitges. 
 
 
 
