@@ -795,7 +795,92 @@ condes(df[c(1:29, 31:34,38)],11)
 catdes(df, num.var = 21)
 ```
 
-#Deliverable II PCA, CA and Clustering
+#Deliverable II: PCA, CA and Clustering
+##PCA analysis
+###Eigenvalues and dominant axes analysis
+```{r}
+#PCA Y analysis (11)
+vfact <- names(df[c(23,25:29,31:34)])
+vnum <- names(df[c(12:14,16:20)])
+res.pca <- PCA(df[,vnum])
+res.pca <-PCA(df[,vnum], axes=c(3,4))
+summary(res.pca, nb.dec = 2, nbelements = 10)
+#Segons criteri de Khaiser realitzarem la interpretació de les 3 primeres dimensions, ja que la quarta ja te un egigenvalue menor a 1.
+barplot(res.pca$eig[,1], col = "yellow", main= "Eigenvalue")
+#En canvi, interpretariem 6 dimensions per Elbow's rule ja que notem una baixada considerable en a partir de la component numero 7. 
+
+```
+###Individuals point of view
+```{r}
+#Individus que contribuieixen més a la dimensió 1
+fviz_contrib(res.pca, choice = "ind", top = 10, fill = "yellow", axes = 1); # Dimensió 1
+#Individus que contribuieixen més a la dimensió 2
+fviz_contrib(res.pca, choice = "ind", top = 10, fill = "yellow", axes = 2); # Dimensió 2
+#Individus que contribuieixen més a la dimensió 3
+fviz_contrib(res.pca, choice = "ind", top = 10, fill = "yellow", axes = 3); # Dimensió 3
+```
+
+
+```{r}
+#Ara observem els individus més extrems del nostre data frame.
+indiv_out.d1<-Boxplot(res.pca$ind$coord[,1]); indiv_out.d1; # Dimensió 1
+#En la dimensió 1 no trobem cap extrem
+```
+
+
+```{r}
+# Dimensió 2
+indiv_out.d2<-Boxplot(res.pca$ind$coord[,2]); indiv_out.d2; 
+q1 = quantile(res.pca$ind$coord[,1])[2];q1;
+q3 = quantile(res.pca$ind$coord[,1])[4];q3;
+mild.threshold.upper = (q3-q1) * 1.5 + q3;mild.threshold.upper;
+mild.threshold.lower = q1 -(q3-q1) * 1.5;mild.threshold.lower;
+abline(h=c(3, -3), col = "red")
+indiv_sup.d2 <- which(res.pca$ind$coord[,2] >= 3 | res.pca$ind$coord[,2] <= -3);
+aux <- sort(indiv_sup.d2, decreasing= TRUE)
+df[aux[1:5], vfact]
+#En la dimensió 2 podem veure una petita mostra  que les coordenades més extremes ens apareixen en individus amb un nivell educatiu basic, sense parella i en una edat compresa entre 30 i 40 anys.
+plot.PCA(res.pca,choix=c("ind"),cex=0.95, col.ind="blue",select = "contrib 18")
+```
+
+
+```{r}
+#Dimensió 3
+indiv_out.d3<-Boxplot(res.pca$ind$coord[,3]); indiv_out.d3;
+q1 = quantile(res.pca$ind$coord[,1])[2];q1;
+q3 = quantile(res.pca$ind$coord[,1])[4];q3;
+mild.threshold.upper = (q3-q1) * 1.5 + q3;mild.threshold.upper;
+mild.threshold.lower = q1 -(q3-q1) * 1.5;mild.threshold.lower;
+abline(h=c(mild.threshold.upper, -5), col = "red")
+indiv_sup.d3 <- which(res.pca$ind$coord[,3] >= mild.threshold.upper | res.pca$ind$coord[,3] <= -5);
+aux <- sort(indiv_sup.d3, decreasing= TRUE)
+df[aux[1:7], vfact]
+#En la dimensió 3 en canvi podem veure que les coordenades més extremes ens apareixen en individus amb un nivell educatiu superior,  que han estat previament contactats, amb una hipoteca i que han estat contactats durant la temporada d'estiu.
+plot.PCA(res.pca,choix=c("ind"),cex=0.95, col.ind="blue",select = "contrib 18", axes = 3:4)
+```
+
+```{r}
+#Tornem a realitzar el calcul dels PCA ara tenint en compte que els nostres individus considerats outliers de la mostra, realitzaran la funció d'individus suplementaris.
+
+newres.pca <- PCA(df[,vnum], ind.sup = c(indiv_sup.d2, indiv_sup.d3))
+
+#Podem veure que en utilizar els otuliers indivius com a individus suplmenetaris els eigenvalues canvien significativament modificant inclús el nombre de dimensions necessaries per a la correcta interpretació de les dades. 
+
+summary(newres.pca, nb.dec = 2, nbelements = 10)
+
+```
+###Interpreting the axes
+```{r}
+#Comprovem de manera més exhaustiva quines variables afecten més als diferents eixos. 
+
+dimdesc(newres.pca, axes = 1:3)
+
+#Pel que fa a la primera dimensió, les variables socioeconòmiques son les que ens mostren una major coorrelació.Per altra banda veiem que el nombre de contactes efectuats abans de l'ultim contacte té una relació negativa amb el primer eix.
+
+#Pel que fa a la segona dimensió,  el més destacable és la relació inversament proporcional que el segon eix de coordenades té amb el numero de dies que han passat des de l'ultim contacte.
+
+#En canvi el tercer eix de dimensions està altament relacionat amb el numero de vegades que un clientha estat conatctat durant aquesta campanya.
+```
 
 
 
