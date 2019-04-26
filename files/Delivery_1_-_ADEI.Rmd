@@ -910,15 +910,29 @@ df$kmeansclu<-factor(def$cluster)
 vclust <- c(vfact, vnum, "kmeansclu")
 targ <- which(vclust == "kmeansclu")
 catdes(df[,vclust], targ)
-
-###### TODO JOSEP
 ```
+Cluster 1: Es troba la gent jove treballadora que han sigut prèviamnet contactats
+
+Cluster 2: Individus que han estat prèviamnet contactats i d'edat avançada.
+
+Cluster 3: En aquest cas és difícil veure un patró que tots els individus segueixin.
+
+Cluster 4: En aquest cluster es troba la gent jove que treballa com a autònom.
+
+Cluster 5: Hi trobam individus que no són d'edat avançada, contactats durant la tardor-hivern i que estàn divorciats.
+
+Cluster 6: Aquest cluster segueix la línia del tercer, ja que no es pot veure un patró clar a simple vista.
+
+Cluster 7: Hi podem trobar individus que no són ancians (fins els 50 anys) que no han estat previament contactats.
+
 
 # Hierarchical Clustering
+
 Després de comprovar el nombre optim de cluster a definir interaccionant amb el plot, hem vist que és 5.
 ```{r}
 clust <- HCPC(res.pca, nb.clust = 5, order = TRUE)
 ```
+
 ## Description of clusters
 ```{r}
 clust$desc.var
