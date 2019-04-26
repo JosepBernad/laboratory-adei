@@ -3,17 +3,17 @@ title: "First delivery - ADEI"
 author: "Alex Rubio i Josep Bernad"
 date: "1 de març de 2019"
 output:
-  pdf_document:
-    number_sections: yes
-    toc: yes
-    toc_depth: '3'
-  word_document:
-    toc: yes
-    toc_depth: '3'
   html_document:
     number_sections: yes
     toc: yes
-    toc_depth: 3
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  pdf_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: '2'
 editor_options:
   chunk_output_type: console
 ---
@@ -23,16 +23,16 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Presentation
+\newpage
+# Introduction
 We are going to work with dataset bank-additional-full.csv with all examples (41188) and 20 inputs, ordered by date (from May 2008 to November 2010), very close to the data
 analyzed in [Moro et al., 2014].
 
 Deliverables are concerned with Multivariant Data Analysis and model building for response variables: Y- Duration of the call and binary factor Y (Binary Target) if the product (bank term deposit) would be ('yes') or not ('no') subscribed.
 
 
-# Bank client data
-
-## Description 
+## Bank client data
+### Description 
 
 *Input variables:*
 
@@ -58,7 +58,7 @@ Deliverables are concerned with Multivariant Data Analysis and model building fo
   20. nr.employed: number of employees - quarterly indicator (numeric)
   21. y - has the client subscribed a term deposit? (binary: 'yes','no')
 
-# Loading packages 
+## Loading packages 
 
 ```{r, include=FALSE}
 requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA")
@@ -73,27 +73,27 @@ lapply(requiredPackages, require, character.only = TRUE)
 ```
 
 
-# Loading data
+## Loading data
 ```{r}
 #rm(list=ls())
 # Load Required Packages: to be increased over the course
 
 # Josep
-#setwd("~/Developer/r-studio/laboratory-adei/data-directory")
-#load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
+setwd("~/Developer/r-studio/laboratory-adei/data-directory")
+load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
 
 # Alex
-setwd("D:/Google Drive/Uni/ADEI/data-directory")
-load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+#setwd("D:/Google Drive/Uni/ADEI/data-directory")
+#load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
 
 summary(df)
 ```
 
 
-#Univariate Descriptive Analysis
+# Univariate Descriptive Analysis
 Creem factors per cada variable posant abans NA a aquells valos erronis o faltants.
 
-##Transform missing and wrong data to NAs
+## Transform missing and wrong data to NAs
 ```{r}
 #Default
 sel<-which(df$default=="unknown");length(sel)
@@ -124,7 +124,7 @@ sel<-which(df$job=="unknown");length(sel)
 df$job[sel] <- NA
 df$job <- factor(df$job)
 summary(df$job)
-S
+
 #Education
 sel<-which(df$education=="unknown");length(sel)
 df$education[sel] <- NA
@@ -287,8 +287,8 @@ summary(df$f.age)
 levels(df$f.age)<-paste0("f.age-",levels(df$f.age))
 ```
 
-# Exploratory Data Analysis 
-##Age
+## Exploratory Data Analysis 
+### Age
 ```{r}
 summary(df$age)
 barplot(table(df$age), main= "Age",col="yellow")
@@ -296,7 +296,7 @@ summary(df$f.age)
 barplot(table(df$f.age), main="Age groups",names.arg=c("17 a 30","30 a 40","40 a 50",">50"),col="yellow")
 ```
 
-##Job
+### Job
 ```{r}
 table(df$job)
 pie(table(df$job), main= "Job")
@@ -307,7 +307,7 @@ lbls <- paste(lbls,"%",sep="") # add % to labels
 pie(aux,labels = lbls, main="Job Situation")
 ```
 
-##Marital
+###Marital
 ```{r}
 table(df$marital)
 aux <- table(df$marital)
@@ -316,7 +316,8 @@ lbls <- paste(names(aux), "\n", pct, sep="")
 lbls <- paste(lbls,"%",sep="") # add % to labels 
 pie(aux,labels = lbls, main="Marital Situation")
 ```
-##Education
+
+###Education
 ```{r}
 table(df$education)
 pie(table(df$education), main= "Education")
@@ -327,7 +328,7 @@ lbls <- paste(lbls,"%",sep="") # ad % to labels
 pie(aux,labels = lbls, main="Education Level")
 ```
 
-##Default-Housing-Loan
+###Default-Housing-Loan
 ```{r}
 table(df$default)
 table(df$housing)
@@ -351,8 +352,7 @@ par(mfrow=c(1,1))
 ```
 Com es pot veure no hem el gràfic de deutes, ja que el 100% d'individus que han contestat a l'enquesta no en tenien.
 
-
-##Contact Device
+###Contact Device
 ```{r}
 table(df$contact)
 aux <- table(df$contact)
@@ -362,8 +362,7 @@ lbls <- paste(lbls,"%",sep="") # ad % to labels
 pie(aux,labels = lbls, main="Contact Device")
 ```
 
-
-##Date - Month and season
+###Date - Month and season
 ```{r}
 table(df$month)
 table(df$f.season)
@@ -378,7 +377,7 @@ pie(aux,labels = lbls,
    main="Season")
 ```
 
-##Date - Day of the week
+###Date - Day of the week
 ```{r}
 table(df$day_of_week)
 barplot(table(df$f.season), main= "Season", col="darkblue")
@@ -390,14 +389,14 @@ pie(aux,labels = lbls,
    main="Day of the week")
 ```
 
-##Duration
+###Duration
 ```{r}
 summary(df$duration)
 barplot(table(df$duration),col="yellow",border="red", main="Call duration")
 
 ```
 
-##Campaign
+###Campaign
 ```{r}
 summary(df$campaign)
 
@@ -405,7 +404,7 @@ barplot(table(df$campaign),col="yellow", main="Number of campaigns previously co
 ```
 
 
-##PDays
+###PDays
 ```{r}
 summary(df$pdays)
 barplot(table(df$pdays),col="yellow", main="Number of days between the last contact")
@@ -420,14 +419,14 @@ pie(aux,labels = lbls,
 ```
 
 
-##Prevously
+###Prevously
 ```{r}
 summary(df$previous)
 table(df$previous)
 barplot(table(df$previous),col="yellow", main="Number of contacts before this campaign")
 ```
 
-##POutcome
+###POutcome
 ```{r}
 table(df$poutcome)
 aux <- table(df$poutcome)
@@ -438,7 +437,7 @@ pie(aux,labels = lbls,
    main="Outome of the previous marketing campaign")
 ```
 
-##Y
+###Y
 ```{r}
 table(df$y)
 
@@ -450,8 +449,11 @@ pie(aux,labels = lbls,
    main="Binary target")
 ```
 
-#Data Quality Report
-##Missing Values
+
+
+# Data Quality Report
+## Variables
+### Missing Values
 ```{r}
 vmiss<-rep(0,nrow(df))
 
@@ -475,7 +477,7 @@ barplot(nmiss_aux, col="yellow", main="Variables with missing values");
 ```
 Al barplot sols apareixen les variables amb dades mancants.
 
-##Errors
+### Errors
 ```{r}
 verrs<-rep(0, nrow(df))
 
@@ -487,7 +489,7 @@ names(nerrs) <- names(df[initialVariables])
 names(df[initialVariables])
 ```
 
-### Job
+#### Job
 ```{r}
 v<-c("admin.", "blue-collar", "entrepreneur", "housemaid", "management", "retired", "self-employed","services","student","technician","unemployed",NA)
 llista<-which(!is.element(df[2], v));
@@ -495,7 +497,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[2]<-nerrs[2]+sum(!is.element(df[,2], v))
 ```
 
-### Marital
+#### Marital
 ```{r}
 v<-c("divorced", "married", "single", NA)
 llista<-which(!is.element(df[3], v));
@@ -503,7 +505,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[3]<-nerrs[3]+sum(!is.element(df[,3], v))
 ```
 
-### Education
+#### Education
 ```{r}
 v<-c("Edu-basic.4y", "Edu-basic.6y", "Edu-basic.9y", "Edu-high.school", "Edu-illiterate", "Edu-professional.course", "Edu-university.degree", NA)
 llista<-which(!is.element(df[4], v));
@@ -511,7 +513,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[4]<-nerrs[4]+sum(!is.element(df[,4], v))
 ```
 
-### Default
+#### Default
 ```{r}
 v<-c("no", "yes", NA)
 llista<-which(!is.element(df[5], v));
@@ -519,7 +521,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[5]<-nerrs[5]+sum(!is.element(df[,5], v))
 ```
 
-### Housing
+#### Housing
 ```{r}
 v<-c("no", "yes", NA)
 llista<-which(!is.element(df[6], v));
@@ -527,7 +529,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[6]<-nerrs[6]+sum(!is.element(df[,6], v))
 ```
 
-### Loan
+#### Loan
 ```{r}
 v<-c("no", "yes", NA)
 llista<-which(!is.element(df[7], v));
@@ -535,7 +537,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[7]<-nerrs[7]+sum(!is.element(df[,7], v))
 ```
 
-### Contact
+#### Contact
 ```{r}
 v<-c("cellular", "telephone", NA)
 llista<-which(!is.element(df[8], v));
@@ -543,7 +545,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[8]<-nerrs[8]+sum(!is.element(df[,8], v))
 ```
 
-### Month
+#### Month
 ```{r}
 v<-c("apr", "aug", "dec", "jul", "jun", "mar", "may", "nov", "oct", "sep", "jan", "feb", NA)
 llista<-which(!is.element(df[9], v));
@@ -551,7 +553,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[9]<-nerrs[9]+sum(!is.element(df[,9], v))
 ```
 
-### Day of week
+#### Day of week
 ```{r}
 v<-c("mon", "tue", "wed", "thu", "fri", NA)
 llista<-which(!is.element(df[10], v));
@@ -559,7 +561,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[10]<-nerrs[10]+sum(!is.element(df[,10], v))
 ```
 
-### Poutcome
+#### Poutcome
 ```{r}
 v<-c("failure", "success", NA)
 llista<-which(!is.element(df[,15], v));
@@ -567,7 +569,7 @@ verrs[llista]<-verrs[llista]+1
 nerrs[15]<-nerrs[15]+sum(!is.element(df[,15], v))
 ```
 
-### Y
+#### Y
 ```{r}
 v<-c("yes", "no", NA)
 llista<-which(!is.element(df[21], v));
@@ -581,7 +583,7 @@ nerrs
 ```
 
 
-## Outliers
+#### Outliers
 
 ```{r}
 vout<-rep(0,nrow(df))
@@ -594,7 +596,7 @@ names(nout) <- names(df[initialVariables])
 names(df[initialVariables])
 ```
 
-### Age
+##### Age
 ```{r}
 Boxplot(df$age, ylab = "Age Boxplot")
 sout <- 80
@@ -605,7 +607,7 @@ if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["age"]<-length(outliers)}
 ```
-###duration
+##### Duration
 ```{r}
 Boxplot(df$duration)
 sout <- 1500
@@ -615,7 +617,7 @@ if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["duration"]<-length(outliers)}
 ```
-###campaign
+##### Campaign
 ```{r}
 Boxplot(df$campaign)
 sout <- 9
@@ -626,7 +628,7 @@ if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["campaign"]<-length(outliers)}
 ```
-###pdays 
+##### Pdays 
 ```{r}
 boxplot(df$pdays);
 sout <- 15;
@@ -637,7 +639,7 @@ if(length(outliers)>0){
 vout[outliers]<-vout[outliers]+1
 nout["pdays"]<-length(outliers)}
 ```
-###previous
+##### Previous
 ```{r}
 Boxplot(df$previous)
 sout <- 2
@@ -654,7 +656,8 @@ Així els outliers queden:
 ```{r}
 nout
 ```
-#Rank Variables
+
+#### Rank Variables
 ```{r}
 miss <- sort(nmiss, decreasing =  TRUE)
 miss
@@ -670,7 +673,7 @@ ranking <- sort(ranking, decreasing = TRUE);
 ranking
 
 ```
-##Individual
+## Individual
 ```{r}
 vmis<-rep(0, nrow(df))
 nmis<-rep(0, ncol(df))
@@ -682,7 +685,7 @@ df$outliers<-vout
 df$errors<-verrs
 df$missings<-vmis
 ```
-#Correlation
+# Correlation
 ```{r}
 ##Outliers
 condes(df, num.var = 35)
@@ -708,7 +711,7 @@ aggregate(df$outliers, by=list(df$f.marital), FUN=mean)
 ```
 
 
-#Imputation
+# Imputation
 ##Numeric Variables
 ```{r}
 
@@ -747,10 +750,8 @@ df$f.loan <- resfact$completeObs[,"f.loan"]
 df$f.job <- resfact$completeObs[,"f.job"]
 ```
 
-
+Imputem manualment poutcome ja que pensem que els que no han respós a la pregunta molt probablement tampoc havien sigut contactats amb anterioritat:
 ```{r}
-#Imputem manualment poutcome ja que pensem que els que no han respós a la pregunta molt probablement tampoc havien sigut contactats amb anterioritat.
-
 sel <- which(is.na(df$poutcome))
 
 df$poutcome <- factor(df$poutcome, labels=paste("Pout", sep="-", levels(df$poutcome)))
@@ -774,24 +775,21 @@ df$f.poutcome<-factor(df$f.poutcome,levels=1:2,labels=c("f.Pout-failure","f.Pout
 summary(df$f.poutcome)
 ```
 
-
+Imputem manualment default ja que pensem que els que no han respós a la pregunta no poden ser imputats a la repsosta afirmativa, tot i ser concients que seria totalment probable:
 ```{r}
-#Imputem manualment default ja que pensem que els que no han respós a la pregunta no poden ser imputats a la repsosta afirmativa, tot i ser concients que seria totalment probable.
-
 sel <- which(is.na(df$default))
 df$f.default[sel] <- "f.no"
 table(df$f.default)
 ```
 
-#Profiling
+# Profiling
 ```{r}
 condes(df[c(1:29, 31:34,38)],11)
 catdes(df, num.var = 21)
 ```
 
-#Deliverable II: PCA, CA and Clustering
-##PCA analysis
-###Eigenvalues and dominant axes analysis
+# PCA analysis
+## Eigenvalues and dominant axes analysis
 ```{r}
 #PCA Y analysis (11)
 vfact <- names(df[c(23,25:29,31:34)])
@@ -799,12 +797,15 @@ vnum <- names(df[c(12:14,16:20)])
 res.pca <- PCA(df[,vnum])
 res.pca <-PCA(df[,vnum], axes=c(3,4))
 summary(res.pca, nb.dec = 2, nbelements = 10)
-#Segons criteri de Khaiser realitzarem la interpretació de les 3 primeres dimensions, ja que la quarta ja te un egigenvalue menor a 1.
-barplot(res.pca$eig[,1], col = "yellow", main= "Eigenvalue")
-#En canvi, interpretariem 6 dimensions per Elbow's rule ja que notem una baixada considerable en a partir de la component numero 7. 
-
 ```
-###Individuals point of view
+Segons criteri de Khaiser realitzarem la interpretació de les 3 primeres dimensions, ja que la quarta ja te un egigenvalue menor a 1.
+```{r}
+barplot(res.pca$eig[,1], col = "yellow", main= "Eigenvalue")
+```
+En canvi, interpretariem 6 dimensions per Elbow's rule ja que notem una baixada considerable en a partir de la component numero 7.
+
+## Individuals point of view
+
 ```{r}
 #Individus que contribuieixen més a la dimensió 1
 fviz_contrib(res.pca, choice = "ind", top = 10, fill = "yellow", axes = 1); # Dimensió 1
@@ -814,13 +815,11 @@ fviz_contrib(res.pca, choice = "ind", top = 10, fill = "yellow", axes = 2); # Di
 fviz_contrib(res.pca, choice = "ind", top = 10, fill = "yellow", axes = 3); # Dimensió 3
 ```
 
-
 ```{r}
 #Ara observem els individus més extrems del nostre data frame.
 indiv_out.d1<-Boxplot(res.pca$ind$coord[,1]); indiv_out.d1; # Dimensió 1
 #En la dimensió 1 no trobem cap extrem
 ```
-
 
 ```{r}
 # Dimensió 2
@@ -833,7 +832,9 @@ abline(h=c(3, -3), col = "red")
 indiv_sup.d2 <- which(res.pca$ind$coord[,2] >= 3 | res.pca$ind$coord[,2] <= -3);
 aux <- sort(indiv_sup.d2, decreasing= TRUE)
 df[aux[1:5], vfact]
-#En la dimensió 2 podem veure una petita mostra  que les coordenades més extremes ens apareixen en individus amb un nivell educatiu basic, sense parella i en una edat compresa entre 30 i 40 anys.
+```
+En la dimensió 2 podem veure una petita mostra  que les coordenades més extremes ens apareixen en individus amb un nivell educatiu basic, sense parella i en una edat compresa entre 30 i 40 anys.
+```{r}
 plot.PCA(res.pca,choix=c("ind"),cex=0.95, col.ind="blue",select = "contrib 18")
 ```
 
@@ -849,34 +850,36 @@ abline(h=c(mild.threshold.upper, -5), col = "red")
 indiv_sup.d3 <- which(res.pca$ind$coord[,3] >= mild.threshold.upper | res.pca$ind$coord[,3] <= -5);
 aux <- sort(indiv_sup.d3, decreasing= TRUE)
 df[aux[1:7], vfact]
-#En la dimensió 3 en canvi podem veure que les coordenades més extremes ens apareixen en individus amb un nivell educatiu superior,  que han estat previament contactats, amb una hipoteca i que han estat contactats durant la temporada d'estiu.
+```
+En la dimensió 3 en canvi podem veure que les coordenades més extremes ens apareixen en individus amb un nivell educatiu superior,  que han estat previament contactats, amb una hipoteca i que han estat contactats durant la temporada d'estiu.
+```{r}
 plot.PCA(res.pca,choix=c("ind"),cex=0.95, col.ind="blue",select = "contrib 18", axes = 3:4)
 ```
 
+Tornem a realitzar el calcul dels PCA ara tenint en compte que els nostres individus considerats outliers de la mostra, realitzaran la funció d'individus suplementaris:
 ```{r}
-#Tornem a realitzar el calcul dels PCA ara tenint en compte que els nostres individus considerats outliers de la mostra, realitzaran la funció d'individus suplementaris.
-
 newres.pca <- PCA(df[,vnum], ind.sup = c(indiv_sup.d2, indiv_sup.d3))
-
-#Podem veure que en utilizar els otuliers indivius com a individus suplmenetaris els eigenvalues canvien significativament modificant inclús el nombre de dimensions necessaries per a la correcta interpretació de les dades. 
-
-summary(newres.pca, nb.dec = 2, nbelements = 10)
-
 ```
-###Interpreting the axes
+Podem veure que en utilizar els otuliers indivius com a individus suplmenetaris els eigenvalues canvien significativament modificant inclús el nombre de dimensions necessaries per a la correcta interpretació de les dades. 
 ```{r}
-#Comprovem de manera més exhaustiva quines variables afecten més als diferents eixos. 
-
-dimdesc(newres.pca, axes = 1:3)
-
-#Pel que fa a la primera dimensió, les variables socioeconòmiques son les que ens mostren una major coorrelació.Per altra banda veiem que el nombre de contactes efectuats abans de l'ultim contacte té una relació negativa amb el primer eix.
-
-#Pel que fa a la segona dimensió,  el més destacable és la relació inversament proporcional que el segon eix de coordenades té amb el numero de dies que han passat des de l'ultim contacte.
-
-#En canvi el tercer eix de dimensions està altament relacionat amb el numero de vegades que un clientha estat conatctat durant aquesta campanya.
+summary(newres.pca, nb.dec = 2, nbelements = 10)
 ```
 
-##K-Means Classification
+## Interpreting the axes
+
+Comprovem de manera més exhaustiva quines variables afecten més als diferents eixos.
+```{r}
+dimdesc(newres.pca, axes = 1:3)
+```
+Pel que fa a la primera dimensió, les variables socioeconòmiques son les que ens mostren una major coorrelació.Per altra banda veiem que el nombre de contactes efectuats abans de l'ultim contacte té una relació negativa amb el primer eix.
+
+Pel que fa a la segona dimensió,  el més destacable és la relació inversament proporcional que el segon eix de coordenades té amb el numero de dies que han passat des de l'ultim contacte.
+
+En canvi el tercer eix de dimensions està altament relacionat amb el numero de vegades que un clientha estat conatctat durant aquesta campanya.
+
+
+# K-Means Classification
+
 ```{r}
 set.seed(676489)
 
@@ -897,7 +900,8 @@ plot(opt, type = "b")
 abline(v = 8, col = "red")
 ```
 Com podem comprovar en el gràfic de forma visual, trobem un pic en el moment en que el nombre de clusters és optim. En aquest cas n'utilitzarem 7.
-###Description of clusters
+
+## Description of clusters
 ```{r}
 set.seed(676489)
 def <- kmeans(res.pca$ind$coord[,1:3], centers = 8)
@@ -909,12 +913,13 @@ catdes(df[,vclust], targ)
 
 ###### TODO JOSEP
 ```
-##Hierarchical Clustering
+
+# Hierarchical Clustering
+Després de comprovar el nombre optim de cluster a definir interaccionant amb el plot, hem vist que és 5.
 ```{r}
-#Després de comprovar el nombre optim de cluster a definir interaccionant amb el plot, hem vist que és 5.
 clust <- HCPC(res.pca, nb.clust = 5, order = TRUE)
 ```
-###Description of clusters
+## Description of clusters
 ```{r}
 clust$desc.var
 clust$desc.axes
@@ -922,6 +927,7 @@ clust$desc.axes
 #Individus que són més propers i més lluny al centre dels diferents clusters.
 clust$desc.ind
 ```
+
 En la divisió de clusters per les seves variables podem trobar dos primers clusters altament relacionats amb la variable previous, persones que havien estat contactades anteriorment. En el cas del primer, també es important veure la relació que el cluster té amb els dies que han passat des de l'ultim contacte. Del segon cluster també obtenim relacions socioeconòmiques negatives i amb una important presència.
 
 Per altra banda el cluster numero 3 unicament obté relacions en el sentit negatiu i principalment de variables socioeconòmiques. Totalment el contrari que el cluster numero 4.
@@ -939,49 +945,54 @@ summary(df$f.duration)
 levels(df$f.duration)<-paste0("f.duration-",levels(df$f.duration))
 ```
 
-##CA analysis
+# CA analysis
+
 Per a realitzar l'anàlisis de correspondència simples utilitzarem dos factors sorgits de la neteja de les dades. En aquest cas farem l'estudi amb el factor f.jobsituation i el factor f.age.
-### f.duration - f.job
+
+## f.duration - f.job
+
 ```{r}
 t <- table(df$f.job, df$f.duration); t;
-chisq.test(t)
+chisq.test(t) 
 t <- CA(t)
-
 ```
+
 Com que el p-value és més petit que 0,05 rebutgem la hipòtesis de independència entre els dos factors. Trobem una certa relació entre les trucades amb més durada i els treballadors en el sector dels serveis. Per altre banda, retirats i estudiants son els que més relació tenen amb les trucades curtes.
-####Eigenvalues and dominant axes analysis
+
+###Eigenvalues and dominant axes analysis
+
 ```{r}
 t(t$eig)
 ```
-En aquest punt escollim utilitzar les 4 primeres dimensions, aquestes superen en escreix el limit del 80% de representació.
+
+En aquest punt escollim utilitzar les 4 primeres dimensions, aquestes superen en escreix el limit del 80% de representació:
+
 ```{r}
 t$col$cos2[,1:4]
 ```
+
 Destaquem que la dimensió 3 i 4 realitzen una representació molt lleu de les nostres dades. En canvi la dimensió 1 té en compte les trucades de durada mitjana i en canvi en la tercera dimensió i juguen un paper bastant  important les trucades de major durada de la mostra. 
 
-### f.duration - f.age
+
+## f.duration - f.age
+
 ```{r}
 t <- table(df$f.season, df$f.duration); t;
 chisq.test(t)
 t <- CA(t)
 ```
-Com que el p-value és més petit que 0,05 rebutgem la hipòtesis de independència entre els dos factors. En conjunt podem veure que al voltant de la primavera es situen les trucades amb una durada superior. En canvi, a l'estiu passa totalment el contrari. 
-####Eigenvalues and dominant axes analysis
+Com que el p-value és més petit que 0,05 rebutgem la hipòtesis de independència entre els dos factors. En conjunt podem veure que al voltant de la primavera es situen les trucades amb una durada superior. En canvi, a l'estiu passa totalment el contrari.
+
+###Eigenvalues and dominant axes analysis
+
 ```{r}
 t(t$eig)
 ```
+
 En aquest punt escollim utilitzar les dues uniques dimensión per a poder fer-ne una posterior valoració.
+ 
 ```{r}
 t$col$cos2[,1:2]
 ```
+
 Tot i que la primera dimensió representa en gran escreix la major part de les dades, podem comentar que en la dimensió numero dos es veuen molt millor representades les trucades amb una major durada i també les de durades intermitges. 
-
-
-
-
-
-
-
-
-
-
