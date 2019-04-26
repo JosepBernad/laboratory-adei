@@ -3,17 +3,17 @@ title: "First delivery - ADEI"
 author: "Alex Rubio i Josep Bernad"
 date: "1 de març de 2019"
 output:
-  html_document:
-    number_sections: yes
-    toc: yes
-    toc_depth: 2
-  word_document:
-    toc: yes
-    toc_depth: '2'
   pdf_document:
     number_sections: yes
     toc: yes
     toc_depth: '2'
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
 editor_options:
   chunk_output_type: console
 ---
@@ -79,12 +79,12 @@ lapply(requiredPackages, require, character.only = TRUE)
 # Load Required Packages: to be increased over the course
 
 # Josep
-setwd("~/Developer/r-studio/laboratory-adei/data-directory")
-load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
+#setwd("~/Developer/r-studio/laboratory-adei/data-directory")
+#load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
 
 # Alex
-#setwd("D:/Google Drive/Uni/ADEI/data-directory")
-#load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+setwd("D:/Google Drive/Uni/ADEI/data-directory")
+load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
 
 summary(df)
 ```
