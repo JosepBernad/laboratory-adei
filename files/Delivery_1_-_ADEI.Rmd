@@ -1009,4 +1009,26 @@ En aquest punt escollim utilitzar les dues uniques dimensión per a poder fer-ne
 t$col$cos2[,1:2]
 ```
 
-Tot i que la primera dimensió representa en gran escreix la major part de les dades, podem comentar que en la dimensió numero dos es veuen molt millor representades les trucades amb una major durada i també les de durades intermitges. 
+Tot i que la primera dimensió representa en gran escreix la major part de les dades, podem comentar que en la dimensió numero dos es veuen molt millor representades les trucades amb una major durada i també les de durades intermitges.
+
+#Numeric and Binary targets Forecasting Models
+```{r}
+
+vars_num<-names(df)[c(1,11:14,16:20,35:37)]
+condes(df[,vars_num],which(vars_num == "duration"))
+
+m1<-lm(duration~.,data = df[,vars_num]) 
+summary(m1)
+
+vars_num2 <- vars_num[c(-6:-10)]
+
+m2<-lm(duration~.,data = df[,vars_num2]) 
+summary(m2)
+
+vars_num3 <- vars_num2[c(-6:-8)]
+
+m3<-lm(duration~.,data = df[,vars_num3]) 
+summary(m3)
+```
+
+
