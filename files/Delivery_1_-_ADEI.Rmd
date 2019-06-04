@@ -68,7 +68,7 @@ missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.
 
 missingPackages
 if(length(missingPackages)) install.packages(missingPackages)
-#install.packages(requiredPackages,dependencies = TRUE,repos = c("http://rstudio.org/_packages","http://cran.rstudio.com"))
+install.packages(requiredPackages,dependencies = TRUE,repos = c("http://rstudio.org/_packages","http://cran.rstudio.com"))
 #lapply(requiredPackages, require, character.only = TRUE)
 ```
 
@@ -333,7 +333,7 @@ pie(aux,labels = lbls, main="Education Level")
 table(df$default)
 table(df$housing)
 table(df$loan)
-attach(mtcars)
+#attach(mtcars)
 par(mfrow=c(1,2))
 aux <- table(df$loan)
 pct <- round(aux/sum(aux)*100)
@@ -347,7 +347,7 @@ lbls <- paste(lbls,"%",sep="") # ad % to labels
 pie(aux,labels = lbls, main="Housing Loan")
 
 # Retornar l'attach a l'estat predeterminat
-attach(mtcars)
+#attach(mtcars)
 par(mfrow=c(1,1))
 ```
 Com es pot veure no hem el gràfic de deutes, ja que el 100% d'individus que han contestat a l'enquesta no en tenien.
