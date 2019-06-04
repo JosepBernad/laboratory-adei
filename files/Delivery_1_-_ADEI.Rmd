@@ -1082,9 +1082,30 @@ cat_desc$quanti.var
 
 m1 <- glm(y~nr.employed+euribor3m+emp.var.rate+previous+cons.price.idx+cons.conf.idx+campaign, family = binomial, data = train)
 
-sumnary(m1)
+summary(m1)
+vif(m1)
+```
+Veiem que nr.employed, euribor3m, emp.var.rate i cons.price tenen valors molt superiors a 3, per tant eliminarem la superior (euribor3m) per veure'n el resultat
 
-vif (m1)
+```{r}
+m2 <- glm(y~nr.employed+emp.var.rate+previous+cons.price.idx+cons.conf.idx+campaign, family = binomial, data = train)
+
+summary(m2)
+vif(m2)
+```
+Podem veure com alguns han baixat, però seguim tenguent valors molt alts. Per tant eliminarem la major una altre vegada, emp.var.rate.
+
+```{r}
+m3 <- glm(y~nr.employed+previous+cons.price.idx+cons.conf.idx+campaign, family = binomial, data = train)
+
+summary(m3)
+vif(m3)
+```
+
+Ara ja tenim tots els valors menors que tres, podem fer el test anova
+
+```{r}
+anova(m3)
 ```
 ######Model amb variables factors
 
