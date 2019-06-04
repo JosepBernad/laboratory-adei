@@ -62,14 +62,14 @@ Deliverables are concerned with Multivariant Data Analysis and model building fo
 
 ```{r, include=FALSE}
 requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA")
-#missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/current/Resources/library")[,"Package"]))]
+missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/current/Resources/library")[,"Package"]))]
 
-missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="D:/Program Files/R/R-3.5.2/library")[,"Package"]))]
+#missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="D:/Program Files/R/R-3.5.2/library")[,"Package"]))]
 
 missingPackages
 if(length(missingPackages)) install.packages(missingPackages)
 #install.packages(requiredPackages,dependencies = TRUE,repos = c("http://rstudio.org/_packages","http://cran.rstudio.com"))
-lapply(requiredPackages, require, character.only = TRUE)
+#lapply(requiredPackages, require, character.only = TRUE)
 ```
 
 
@@ -79,12 +79,12 @@ lapply(requiredPackages, require, character.only = TRUE)
 # Load Required Packages: to be increased over the course
 
 # Josep
-#setwd("~/Developer/r-studio/laboratory-adei/data-directory")
-#load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
+setwd("~/Developer/r-studio/laboratory-adei/data-directory")
+load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
 
 # Alex
-setwd("D:/Google Drive/Uni/ADEI/data-directory")
-load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+#setwd("D:/Google Drive/Uni/ADEI/data-directory")
+#load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
 
 summary(df)
 ```
@@ -1032,6 +1032,23 @@ vars_num3 <- vars_num2[c(-6:-8)]
 m3<-lm(duration~.,data = df[,vars_num3]) 
 summary(m3)
 ```
+
 ##Binary Target
 ###Numerical variables
+
+En aquesta segona part de la modelització, ens ajustarem al target factor Y, que ens explica si el client ha acceptat o no.
+
+#### Preparació
+
+Gràcies a l'anàlisi multivariant de passades entregues, eliminarem les dades considerades com outliers.
+```{r}
+indSpl <- c(indiv_sup.d2, indiv_sup.d3)
+dfi <- df[-indSpl]
+
+
+
+```
+
+
+
 
