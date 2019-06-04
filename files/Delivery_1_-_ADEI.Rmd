@@ -1042,7 +1042,7 @@ names(df)
 vars_num<-names(df)[c(1,11:14,16:20)]
 condes(df[,vars_num],which(vars_num == "duration"))
 
-#La variable més relacionada amb el nostre target és pdays, notem que hi ha certa relació entre els dies que passen des de l'ultim contacte i la durada de la trucada. En sentit negatiu tanbé veiem una forta relació amb el nombre de vegades que s'ha contactat durant la darrera campanya.
+#La variable més relacionada amb el nostre target és pdays, notem que hi ha certa relació entre els dies que passen des de l'ultim contacte i la durada de la trucada. En sentit negatiu també veiem una forta relació amb el nombre de vegades que s'ha contactat durant la darrera campanya.
 
 core <- cor(df[,vars_num])
 round(core[,2],dig=3)
@@ -1275,15 +1275,13 @@ cat_desc$quanti.var
 cat_desc$test.chi2
 ```
 
-A partir d'aquest anàlisi, podem veure que les variables més relacionades són 
-
 ####Construcció del model
 
-Per poder utilitzar el train i el test, separarem les dades aleatòriament en dos subgrups, amb unes proporcions del 75% i del 25%.
+Per poder utilitzar el train i el test, separarem les dades aleatòriament en dos subgrups, amb unes proporcions del 80 i del 20%.
 ```{r}
 set.seed(07111995)
 
-id <- sample_frac(data.frame(row(dfi)),0.75)
+id <- sample_frac(data.frame(row(dfi)),0.8)
 n_clmns <- as.numeric(rownames(id))
 train <- dfi[n_clmns,] 
 test <- dfi[-n_clmns,]
@@ -1298,7 +1296,9 @@ nrow(test)
 ```{r}
 cat_desc$quanti.var
 
-m1 <- glm(y~nr.employed+euribor3m+emp.var.rate+previous+cons.price.idx+cons.conf.idx+campaign, family = binomial, data = train)
+m1 <- glm(y~nr.employed+euribor3m+emp.var.rate+previous+cons.price.idx+cons.conf.idx+campaign, 
+          family = binomial, 
+          data = train)
 
 summary(m1)
 vif(m1)
@@ -1306,7 +1306,9 @@ vif(m1)
 Veiem que nr.employed, euribor3m, emp.var.rate i cons.price tenen valors molt superiors a 3, per tant eliminarem la superior (euribor3m) per veure'n el resultat
 
 ```{r}
-m2 <- glm(y~nr.employed+emp.var.rate+previous+cons.price.idx+cons.conf.idx+campaign, family = binomial, data = train)
+m2 <- glm(y~nr.employed+emp.var.rate+previous+cons.price.idx+cons.conf.idx+campaign, 
+          family = binomial, 
+          data = train)
 
 summary(m2)
 vif(m2)
@@ -1314,18 +1316,129 @@ vif(m2)
 Podem veure com alguns han baixat, però seguim tenguent valors molt alts. Per tant eliminarem la major una altre vegada, emp.var.rate.
 
 ```{r}
-m3 <- glm(y~nr.employed+previous+cons.price.idx+cons.conf.idx+campaign, family = binomial, data = train)
+m3 <- glm(y~nr.employed+previous+cons.price.idx+cons.conf.idx+campaign, 
+          family = binomial, 
+          data = train)
 
 summary(m3)
 vif(m3)
 ```
 
-Ara ja tenim tots els valors menors que tres, podem fer el test anova
+Ara ja tenim tots els valors menors que tres, podem fer el test Anova
 
 ```{r}
-anova(m3)
+Anova(m3)
 ```
-######Model amb variables factors
+
+Amb els resultats del test anova, veiem que les variables menys representades són previous i campaign, per això provarem de fer transformacions geomètriques. Descartarem del model els conceptes econòmics, ja que no tenen res a veure amb l'individu.
+
+```{r}
+m4 <- glm(y~campaign+previous+nr.employed, 
+          family = binomial, 
+          data = train)
+
+summary(m4)
+vif(m4)
+Anova(m4)
+marginalModelPlots(m4)
+```
+
+```{r}
+m5 <- glm(y~campaign+poly(previous, 2)+nr.employed, 
+          family = binomial, 
+          data = train)
+
+summary(m5)
+vif(m5)
+Anova(m5)
+marginalModelPlots(m5)
+
+```
+
+Una vegada aplicada la transformació, podem veure que el valor del model a previous es millora.
+
+```{r}
+m6 <- glm(y~campaign+poly(previous, 2), 
+          family = binomial, 
+          data = train)
+
+summary(m6)
+vif(m6)
+Anova(m6, test="LR")
+marginalModelPlots(m6)
+```
+
+Finalment, es farà un test de Fisher per veure la rellevància de la variable que s'ha eliminat (nr.employed).
+
+```{r}
+anova(m5, m6, test="Chisq")
+```
+
+Com es pot veure, no hi ha diferència entre els dos models, per tant eliminarem la variable ja que no ens diu res significatiu.
+
+#####Model amb variables factors
+
+```{r}
+cat_desc$test.chi2
+```
+
+Afegim f.education com a factor al model:
+
+```{r}
+m7<- glm(y~poly(previous, 2)+campaign+f.education,
+          family = binomial,
+          data = train)
+
+summary(m7)
+
+Anova(m7, test="LR")
+marginalModelPlots(m7)
+```
+
+Com podem veure, el factor f.education no ens ajuda i am més, la comparació dels dos models és que el model m5 és millor.
+```{r}
+BIC(m7, m5)
+```
+
+
+Provem amb f.poutcome
+```{r}
+m8<- glm(y~poly(previous, 2)+campaign+f.poutcome,
+          family = binomial,
+          data = train)
+
+summary(m8)
+Anova(m8, test="LR")
+
+BIC(m5, m8)
+```
+Veiem que segueix sense ajudar-nos.
+
+
+Provem amb previous però factoritzada (contactat o no contactat
+```{r}
+m9<- glm(y~f.prev_contacted+campaign,
+          family = binomial,
+          data = train)
+
+summary(m9)
+Anova(m9, test="LR")
+
+BIC(m5, m9)
+```
+Però segueix sense millorar.
+
+```{r}
+m10<- glm(y~f.prev_contacted+f.poutcome,
+          family = binomial,
+          data = train)
+
+summary(m10)
+Anova(m10, test="LR")
+
+BIC(m5, m10)
+```
+
 
 ######Interaccions
 
