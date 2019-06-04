@@ -1014,6 +1014,7 @@ Tot i que la primera dimensió representa en gran escreix la major part de les d
 #Numeric and Binary targets Forecasting Models
 ##Numeric target
 ###Numerical Variables
+
 ```{r}
 vars_num<-names(df)[c(1,11:14,16:20,35:37)]
 condes(df[,vars_num],which(vars_num == "duration"))
@@ -1031,5 +1032,6 @@ vars_num3 <- vars_num2[c(-6:-8)]
 m3<-lm(duration~.,data = df[,vars_num3]) 
 summary(m3)
 ```
-
+##Binary Target
+###Numerical variables
 
