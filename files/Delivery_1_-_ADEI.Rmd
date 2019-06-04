@@ -62,9 +62,12 @@ Deliverables are concerned with Multivariant Data Analysis and model building fo
 
 ```{r, include=FALSE}
 requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA", "lmtest")
-#missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/current/Resources/library")[,"Package"]))]
 
-missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="D:/Program Files/R/R-3.5.2/library")[,"Package"]))]
+# Josep
+missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")[,"Package"]))]
+
+# Àlex
+#missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="D:/Program Files/R/R-3.5.2/library")[,"Package"]))]
 
 missingPackages
 if(length(missingPackages)) install.packages(missingPackages)
@@ -79,12 +82,12 @@ lapply(requiredPackages, require, character.only = TRUE)
 # Load Required Packages: to be increased over the course
 
 # Josep
-#setwd("~/Developer/r-studio/laboratory-adei/data-directory")
-#load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
+setwd("~/Developer/r-studio/laboratory-adei/data-directory")
+load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
 
-# Alex
-setwd("D:/Google Drive/Uni/ADEI/data-directory")
-load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+# Àlex
+#setwd("D:/Google Drive/Uni/ADEI/data-directory")
+#load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
 
 summary(df)
 ```
@@ -1010,6 +1013,12 @@ t$col$cos2[,1:2]
 ```
 
 Tot i que la primera dimensió representa en gran escreix la major part de les dades, podem comentar que en la dimensió numero dos es veuen molt millor representades les trucades amb una major durada i també les de durades intermitges.
+
+
+
+
+
+
 
 #Numeric and Binary targets Forecasting Models
 ##Numeric target
