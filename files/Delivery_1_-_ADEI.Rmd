@@ -1415,7 +1415,7 @@ BIC(m5, m8)
 Veiem que segueix sense ajudar-nos.
 
 
-Provem amb previous però factoritzada (contactat o no contactat
+Provem amb previous però factoritzada (contactat o no contactat)
 ```{r}
 m9<- glm(y~f.prev_contacted+campaign,
           family = binomial,
@@ -1429,7 +1429,7 @@ BIC(m5, m9)
 Però segueix sense millorar.
 
 ```{r}
-m10<- glm(y~f.prev_contacted+f.poutcome,
+m10<- glm(y~poly(previous, 2)+f.poutcome,
           family = binomial,
           data = train)
 
@@ -1438,7 +1438,106 @@ Anova(m10, test="LR")
 
 BIC(m5, m10)
 ```
+Utilitzar la variable factor f.poutcome tampoc és útil.
 
 
-######Interaccions
+```{r}
+m11 <- glm(y~f.prev_contacted+f.prev_contacted+f.season+f.jobsituation+f.age+f.education,
+          family = binomial,
+          data = train)
+vif(m11)
+```
 
+Amb la funció step, eliminarem les variables no rellevants.
+
+```{r}
+m12 <- step(m11, k=log(nrow(train)))
+
+BIC(m5, m12)
+```
+Seguim veient que el model 5 és el més indicat, utilitzant només variables continues.
+
+#####Interaccions
+
+```{r}
+mi1 <- glm(y~(poly(previous, 2))*(campaign),
+          family = binomial,
+          data = train)
+
+Anova(mi1, test="LR")
+BIC(m5, mi1)
+```
+Veiem que la interacció no ens ofereix res.
+
+```{r}
+mi2 <- glm(y~(f.prev_contacted)*(campaign),
+          family = binomial,
+          data = train)
+
+Anova(mi2, test="LR")
+BIC(m5, mi2)
+```
+Utilitzant la variable previous factoritzada tampoc millora.
+
+```{r}
+mi3 <- glm(y~(f.prev_contacted)*(f.poutcome+f.education+f.jobsituation),
+          family = binomial,
+          data = train)
+
+Anova(mi3, test="LR")
+```
+Tampoc amb altres combinacions de factors.
+
+#### Model final
+
+Un cop realitzades les proves, sel·leccionam el model 5 com a bo.
+```{r}
+summary(m5)
+```
+
+#### Interpretació del model final
+
+Y = 41.017394 - campaign*0.071531 - poly(previous, 2):1*5.243436 + poly(previous, 2)2*4.986830 + nr.employed*-0.008383
+
+
+#### Validació
+
+```{r}
+Boxplot(rstudent(m5), id.n=2)
+abline(h=c(2,-2), col="yellow", lwd = 2)
+
+outliers <- which(rstudent(m5)>=2 | rstudent(m5)<= -2)
+length(outliers)
+```
+
+Ara veurem si hi ha alguna data influent que fa possible tenir molts autliers
+
+```{r}
+influent_data <- Boxplot(cooks.distance(m5), id.n = 4); influent_data
+
+ll_inf <- which(abs(cooks.distance(m5))<2)
+length(ll_inf)
+```
+Per tant no tenim data influent.
+
+
+```{r}
+influencePlot(m5, id.n=3)
+
+marginalModelPlot(m5)
+```
+
+#### Predicció
+```{r}
+predic <- predict(m5, type="response", newdata = test)
+pn <- as.numeric(predic)
+
+summary(df$y)
+```
+
+
+```{r}
+predic.y <- factor(ifelse(pn<0.5,0,1), labels = "previ.succ-no", "previ.succ-yes")
+table <- table(predic.y, test$y)
+table
+```
