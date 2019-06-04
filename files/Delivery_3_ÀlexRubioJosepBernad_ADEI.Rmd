@@ -1,0 +1,1548 @@
+---
+title: "Third delivery - ADEI"
+author: "Alex Rubio i Josep Bernad"
+date: "4 de març de 2019"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: '2'
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\newpage
+# Introduction
+We are going to work with dataset bank-additional-full.csv with all examples (41188) and 20 inputs, ordered by date (from May 2008 to November 2010), very close to the data
+analyzed in [Moro et al., 2014].
+
+Deliverables are concerned with Multivariant Data Analysis and model building for response variables: Y- Duration of the call and binary factor Y (Binary Target) if the product (bank term deposit) would be ('yes') or not ('no') subscribed.
+
+
+## Bank client data
+### Description 
+
+*Input variables:*
+
+  1. age (numeric)
+  2. job : type of job (categorical: 'admin.','blue-collar','entrepreneur','housemaid','management','retired','self-employed','services','student','technician','unemployed','unknown')
+  3. marital : marital status (categorical: 'divorced','married','single','unknown'; note: 'divorced' means divorced or widowed)
+  4. education (categorical:'basic.4y','basic.6y','basic.9y','high.school','illiterate','professional.course','university.degree','unknown')
+  5. default: has credit in default? (categorical: 'no','yes','unknown')
+  6. housing: has housing loan? (categorical: 'no','yes','unknown')
+  7. loan: has personal loan? (categorical: 'no','yes','unknown')# related with the last contact of the current campaign:
+  8. contact: contact communication type (categorical:'cellular','telephone')
+  9. month: last contact month of year (categorical: 'jan', 'feb', 'mar',..., 'nov', 'dec')
+  10. day_of_week: last contact day of the week (categorical:'mon','tue','wed','thu','fri')
+  11. duration: last contact duration, in seconds (numeric). Important note: this attribute highly affects the output target (e.g., if duration=0 then y='no'). Yet, the duration is not known before a call is performed. Also, after the end of the call y is obviously known. Thus, this input should only be included for benchmark purposes and should be discarded if the intention is to have a realistic predictive model.
+  12. campaign: number of contacts performed during this campaign and for this client (numeric, includes last contact)
+  13. pdays: number of days that passed by after the client was last contacted from a previous campaign (numeric; 999 means client was not previously contacted)
+  14. previous: number of contacts performed before this campaign and for this client (numeric)
+  15. poutcome: outcome of the previous marketing campaign (categorical: 'failure','nonexistent','success')# social and economic context attributes
+  16. emp.var.rate: employment variation rate - quarterly indicator (numeric)
+  17. cons.price.idx: consumer price index - monthly indicator (numeric)
+  18. cons.conf.idx: consumer confidence index - monthly indicator (numeric)
+  19. euribor3m: euribor 3 month rate - daily indicator (numeric)
+  20. nr.employed: number of employees - quarterly indicator (numeric)
+  21. y - has the client subscribed a term deposit? (binary: 'yes','no')
+
+## Loading packages 
+
+```{r, include=FALSE}
+requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA", "lmtest")
+
+# Josep
+#missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")[,"Package"]))]
+
+# Àlex
+missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="D:/Program Files/R/R-3.5.2/library")[,"Package"]))]
+
+missingPackages
+if(length(missingPackages)) install.packages(missingPackages)
+#install.packages(requiredPackages,dependencies = TRUE,repos = c("http://rstudio.org/_packages","http://cran.rstudio.com"))
+lapply(requiredPackages, require, character.only = TRUE)
+```
+
+
+## Loading data
+```{r}
+#rm(list=ls())
+# Load Required Packages: to be increased over the course
+
+# Josep
+#setwd("~/Developer/r-studio/laboratory-adei/data-directory")
+#load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
+
+# Àlex
+setwd("D:/Google Drive/Uni/ADEI/data-directory")
+load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+
+summary(df)
+```
+
+
+# Univariate Descriptive Analysis
+Creem factors per cada variable posant abans NA a aquells valos erronis o faltants.
+
+## Transform missing and wrong data to NAs
+```{r}
+#Default
+sel<-which(df$default=="unknown");length(sel)
+df$default[sel] <- NA
+df$default <- factor(df$default)
+summary(df$default)
+
+#marital
+sel<-which(df$marital=="unknown");length(sel)
+df$marital[sel] <- NA
+df$marital <- factor(df$marital)
+summary(df$marital)
+
+#Housing
+sel<-which(df$housing=="unknown");length(sel)
+df$housing[sel] <- NA
+df$housing <- factor(df$housing)
+summary(df$housing)
+
+#Loan
+sel<-which(df$loan=="unknown");length(sel)
+df$loan[sel] <- NA
+df$loan <- factor(df$loan)
+summary(df$loan)
+
+#Job
+sel<-which(df$job=="unknown");length(sel)
+df$job[sel] <- NA
+df$job <- factor(df$job)
+summary(df$job)
+
+#Education
+sel<-which(df$education=="unknown");length(sel)
+df$education[sel] <- NA
+df$education <- factor(df$education)
+summary(df$education)
+
+#Pdays
+sel<-which(df$pdays==999);length(sel)
+df$pdays[sel] <- NA
+summary(df$pdays)
+
+#Poutcome
+sel<-which(df$poutcome=="nonexistent");length(sel)
+df$poutcome[sel] <- NA
+df$poutcome <- factor(df$poutcome)
+summary(df$poutcome)
+```
+
+
+## Create new factors corresponding to qualitative concepts.
+
+### Month
+```{r}
+#Modify factor levels label
+df$f.month <- factor(df$month, labels=paste("Month", sep="-", levels(df$month)))
+table(df$f.month)
+
+# Define new factor categories: 1-Spring | 2-Summer | 3-Resta
+df$f.season <- 3
+
+# 1 level - spring 
+sel<-which(df$f.month %in% c("Month-mar","Month-apr","Month-may"))
+df$f.season[sel] <-1
+
+# 2 level - Summer 
+sel<-which(df$f.month %in% c("Month-jun","Month-jul","Month-aug"))
+df$f.season[sel] <-2
+
+table(df$f.season);summary(df$f.season)
+df$f.season<-factor(df$f.season,levels=1:3,labels=c("Spring","Summer","Aut-Win"))
+summary(df$f.season)
+```
+
+### Job 
+```{r}
+#Modify factor levels label
+df$f.job <- factor(df$job, labels=paste("Job", sep="-", levels(df$job)))
+
+table(df$f.job)
+
+# Define new factor categories: 1-selfemployed | 2-worker | 3-other
+df$f.jobsituation<-3
+
+# 1 level - self-employed
+sel<-which(df$f.job %in% c("Job-entrepreneur","Job-housemaid","Job-self-employed"))
+df$f.jobsituation[sel] <- 1
+
+# 2 level - worker
+sel<-which(df$f.job %in% c("Job-admin","Job-blue-collar","Job-management","Job-services","Job-technician"))
+df$f.jobsituation[sel] <- 2
+
+table(df$f.jobsituation);summary(df$f.jobsituation)
+df$f.jobsituation<-factor(df$f.jobsituation,levels=1:3,labels=c("Self-employed","Worker","Other"))
+summary(df$f.jobsituation)
+```
+
+### Pdays
+```{r}
+table(df$pdays)
+
+# Define new factor categories: 1-contacted | 2-not contacted
+df$f.prev_contacted<-2
+
+# 1 level - contacted
+sel<-which(df$pdays %in% c(1:20))
+df$f.prev_contacted[sel] <- 1
+
+# 2 level - not contacted
+sel<-which(df$pdays %in% c(21:1000))
+df$f.prev_contacted[sel] <- 2
+
+table(df$f.prev_contacted);summary(df$f.prev_contacted)
+df$f.prev_contacted<-factor(df$f.prev_contacted,levels=1:2,labels=c("Contacted","No-contacted"))
+summary(df$pdays)
+
+```
+
+
+### Education
+```{r}
+#Modify factor levels label
+df$education <- factor(df$education, labels=paste("Edu", sep="-", levels(df$education)))
+
+table(df$education)
+
+# Define new factor categories: 1-mandatory | 2-nonmandatory | 3-other
+df$f.education<-3
+
+# 1 level - mandatory
+sel<-which(df$education %in% c("Edu-basic.4y","Edu-basic.6y", "Edu-basic.9y", "Edu-high.school"))
+df$f.education[sel] <- 1
+
+# 2 level - nonmandatory
+sel<-which(df$education %in% c("Edu-professional.course","Edu-university.degree"))
+df$f.education[sel] <- 2
+
+table(df$f.education);summary(df$f.education)
+df$f.education<-factor(df$f.education,levels=1:3,labels=c("Mandatory","Non-Mandatory","Other"))
+summary(df$f.education)
+```
+
+
+### Extra Factorization
+```{r}
+#Housing
+
+df$f.housing<-factor(df$housing,labels=paste("f",sep=".",levels(df$housing)))
+table(df$f.housing);summary(df$f.housing);
+
+#Marital
+
+df$f.marital<-factor(df$marital,labels=paste("f",sep=".",levels(df$marital)))
+table(df$f.marital);summary(df$f.marital);
+
+#Default
+df$f.default<-factor(df$default, labels=paste("f",sep=".",levels(df$default)))
+df$f.default <- factor(df$f.default , levels = c(levels(df$f.default), "f.si"))
+table(df$f.default);
+
+#Loan
+df$f.loan<-factor(df$loan,labels=paste("f",sep=".",levels(df$loan)))
+table(df$f.loan);summary(df$f.loan)
+
+#Contact
+df$f.contact<-factor(df$contact,labels=paste("f",sep=".",levels(df$contact)))
+table(df$f.contact);summary(df$f.contact)
+
+#Day of Week
+df$f.day<-factor(df$day_of_week,labels=paste("f.day",sep=".",levels(df$day)))
+table(df$f.day);summary(df$f.day)
+
+```
+
+## Create new factors corresponding to quantitative concepts.
+### Age discreatization
+```{r}
+summary(df$age)
+qulist<-quantile(df$age,seq(0,1,0.25),na.rm=TRUE)
+
+varaux<-factor(cut(df$age,breaks=qulist,include.lowest=T))
+table(varaux)
+tapply(df$age,varaux,median)
+varaux<-factor(cut(df$age,breaks=c(17,30,40,50,95),include.lowest=T))
+table(varaux)
+tapply(df$age,varaux,median)
+
+df$f.age<-factor(cut(df$age,breaks=c(17,30,40,50,95),include.lowest=T))
+
+summary(df$f.age)
+levels(df$f.age)<-paste0("f.age-",levels(df$f.age))
+```
+
+## Exploratory Data Analysis 
+### Age
+```{r}
+summary(df$age)
+barplot(table(df$age), main= "Age",col="yellow")
+summary(df$f.age)
+barplot(table(df$f.age), main="Age groups",names.arg=c("17 a 30","30 a 40","40 a 50",">50"),col="yellow")
+```
+
+### Job
+```{r}
+table(df$job)
+pie(table(df$job), main= "Job")
+aux <- table(df$f.jobsituation)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # add % to labels
+pie(aux,labels = lbls, main="Job Situation")
+```
+
+###Marital
+```{r}
+table(df$marital)
+aux <- table(df$marital)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # add % to labels 
+pie(aux,labels = lbls, main="Marital Situation")
+```
+
+###Education
+```{r}
+table(df$education)
+pie(table(df$education), main= "Education")
+aux <- table(df$f.education)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls, main="Education Level")
+```
+
+###Default-Housing-Loan
+```{r}
+table(df$default)
+table(df$housing)
+table(df$loan)
+attach(mtcars)
+par(mfrow=c(1,2))
+aux <- table(df$loan)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls, main="Personal Loan")
+aux <- table(df$housing)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls, main="Housing Loan")
+
+# Retornar l'attach a l'estat predeterminat
+attach(mtcars)
+par(mfrow=c(1,1))
+```
+Com es pot veure no hem el gràfic de deutes, ja que el 100% d'individus que han contestat a l'enquesta no en tenien.
+
+###Contact Device
+```{r}
+table(df$contact)
+aux <- table(df$contact)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls, main="Contact Device")
+```
+
+###Date - Month and season
+```{r}
+table(df$month)
+table(df$f.season)
+
+barplot(table(df$month), main= "Month", col="yellow")
+
+aux <- table(df$f.season)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Season")
+```
+
+###Date - Day of the week
+```{r}
+table(df$day_of_week)
+barplot(table(df$f.season), main= "Season", col="darkblue")
+aux <- table(df$day_of_week)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Day of the week")
+```
+
+###Duration
+```{r}
+summary(df$duration)
+barplot(table(df$duration),col="yellow",border="red", main="Call duration")
+
+```
+
+###Campaign
+```{r}
+summary(df$campaign)
+
+barplot(table(df$campaign),col="yellow", main="Number of campaigns previously contacted")
+```
+
+
+###PDays
+```{r}
+summary(df$pdays)
+barplot(table(df$pdays),col="yellow", main="Number of days between the last contact")
+
+table(df$f.prev_contacted)
+aux <- table(df$f.prev_contacted)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Was previously contacted?")
+```
+
+
+###Prevously
+```{r}
+summary(df$previous)
+table(df$previous)
+barplot(table(df$previous),col="yellow", main="Number of contacts before this campaign")
+```
+
+###POutcome
+```{r}
+table(df$poutcome)
+aux <- table(df$poutcome)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Outome of the previous marketing campaign")
+```
+
+###Y
+```{r}
+table(df$y)
+
+aux <- table(df$y)
+pct <- round(aux/sum(aux)*100)
+lbls <- paste(names(aux), "\n", pct, sep="")
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(aux,labels = lbls,
+   main="Binary target")
+```
+
+
+
+# Data Quality Report
+## Variables
+### Missing Values
+```{r}
+vmiss<-rep(0,nrow(df))
+
+nInitialVariables<- 21
+nmiss<-rep(0,nInitialVariables)
+
+initialVariables <- 0:21
+names(nmiss) <- names(df[initialVariables])
+names(df[initialVariables])
+
+for(j in 1:21) {
+  nmiss[j]<-nmiss[j]+sum(is.na(df[,j]))
+}
+
+nmiss_aux <- nmiss[ nmiss != 0 ]
+nmiss_aux <- sort(nmiss_aux, decreasing = TRUE)
+
+table(nmiss_aux)
+
+barplot(nmiss_aux, col="yellow", main="Variables with missing values");
+```
+Al barplot sols apareixen les variables amb dades mancants.
+
+### Errors
+```{r}
+verrs<-rep(0, nrow(df))
+
+nInitialVariables<- 21
+nerrs<-rep(0, nInitialVariables)
+
+initialVariables <- 0:21
+names(nerrs) <- names(df[initialVariables])
+names(df[initialVariables])
+```
+
+#### Job
+```{r}
+v<-c("admin.", "blue-collar", "entrepreneur", "housemaid", "management", "retired", "self-employed","services","student","technician","unemployed",NA)
+llista<-which(!is.element(df[2], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[2]<-nerrs[2]+sum(!is.element(df[,2], v))
+```
+
+#### Marital
+```{r}
+v<-c("divorced", "married", "single", NA)
+llista<-which(!is.element(df[3], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[3]<-nerrs[3]+sum(!is.element(df[,3], v))
+```
+
+#### Education
+```{r}
+v<-c("Edu-basic.4y", "Edu-basic.6y", "Edu-basic.9y", "Edu-high.school", "Edu-illiterate", "Edu-professional.course", "Edu-university.degree", NA)
+llista<-which(!is.element(df[4], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[4]<-nerrs[4]+sum(!is.element(df[,4], v))
+```
+
+#### Default
+```{r}
+v<-c("no", "yes", NA)
+llista<-which(!is.element(df[5], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[5]<-nerrs[5]+sum(!is.element(df[,5], v))
+```
+
+#### Housing
+```{r}
+v<-c("no", "yes", NA)
+llista<-which(!is.element(df[6], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[6]<-nerrs[6]+sum(!is.element(df[,6], v))
+```
+
+#### Loan
+```{r}
+v<-c("no", "yes", NA)
+llista<-which(!is.element(df[7], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[7]<-nerrs[7]+sum(!is.element(df[,7], v))
+```
+
+#### Contact
+```{r}
+v<-c("cellular", "telephone", NA)
+llista<-which(!is.element(df[8], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[8]<-nerrs[8]+sum(!is.element(df[,8], v))
+```
+
+#### Month
+```{r}
+v<-c("apr", "aug", "dec", "jul", "jun", "mar", "may", "nov", "oct", "sep", "jan", "feb", NA)
+llista<-which(!is.element(df[9], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[9]<-nerrs[9]+sum(!is.element(df[,9], v))
+```
+
+#### Day of week
+```{r}
+v<-c("mon", "tue", "wed", "thu", "fri", NA)
+llista<-which(!is.element(df[10], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[10]<-nerrs[10]+sum(!is.element(df[,10], v))
+```
+
+#### Poutcome
+```{r}
+v<-c("failure", "success", NA)
+llista<-which(!is.element(df[,15], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[15]<-nerrs[15]+sum(!is.element(df[,15], v))
+```
+
+#### Y
+```{r}
+v<-c("yes", "no", NA)
+llista<-which(!is.element(df[21], v));
+verrs[llista]<-verrs[llista]+1
+nerrs[21]<-nerrs[21]+sum(!is.element(df[,21], v))
+```
+
+Així els errors queden:
+```{r}
+nerrs
+```
+
+
+#### Outliers
+
+```{r}
+vout<-rep(0,nrow(df))
+
+nInitialVariables<- 21
+nout<-rep(0,nInitialVariables)
+
+initialVariables <- 0:21
+names(nout) <- names(df[initialVariables])
+names(df[initialVariables])
+```
+
+##### Age
+```{r}
+Boxplot(df$age, ylab = "Age Boxplot")
+sout <- 80
+abline(h=sout,col="red",lwd=2)
+outliers<-which(df$age>sout);length(outliers);
+df$age[outliers] <- NA;
+if(length(outliers)>0){
+vout[outliers]<-vout[outliers]+1
+nout["age"]<-length(outliers)}
+```
+##### Duration
+```{r}
+Boxplot(df$duration)
+sout <- 1500
+abline(h=sout,col="red",lwd=2)
+outliers<-which(df$duration>sout);length(outliers);
+if(length(outliers)>0){
+vout[outliers]<-vout[outliers]+1
+nout["duration"]<-length(outliers)}
+```
+##### Campaign
+```{r}
+Boxplot(df$campaign)
+sout <- 9
+abline(h=sout,col="red",lwd=2)
+outliers<-which(df$campaign>sout);length(outliers);
+df$campaign[outliers] <- NA;
+if(length(outliers)>0){
+vout[outliers]<-vout[outliers]+1
+nout["campaign"]<-length(outliers)}
+```
+##### Pdays 
+```{r}
+boxplot(df$pdays);
+sout <- 15;
+abline(h=sout,col="red",lwd=2); 
+outliers<-which(df$pdays> sout); length(outliers);
+df$pdays[outliers] <- NA;
+if(length(outliers)>0){
+vout[outliers]<-vout[outliers]+1
+nout["pdays"]<-length(outliers)}
+```
+##### Previous
+```{r}
+Boxplot(df$previous)
+sout <- 2
+abline(h=sout,col="red",lwd=2)
+outliers<-which(df$previous> sout);
+df$previous[outliers] <- NA;
+length(outliers);
+if(length(outliers)>0){
+vout[outliers]<-vout[outliers]+1
+nout["previous"]<-length(outliers)}
+```
+
+Així els outliers queden:
+```{r}
+nout
+```
+
+#### Rank Variables
+```{r}
+miss <- sort(nmiss, decreasing =  TRUE)
+miss
+err <- sort(nerrs, decreasing =  TRUE)
+err
+miss <- sort(nmiss, decreasing =  TRUE)
+miss
+out <- sort(nout, decreasing =  TRUE)
+out
+
+ranking <- nmiss + nerrs + nout;
+ranking <- sort(ranking, decreasing = TRUE);
+ranking
+
+```
+## Individual
+```{r}
+vmis<-rep(0, nrow(df))
+nmis<-rep(0, ncol(df))
+for(i in 1:nrow(df)) {
+vmis[i]<-vmis[i]+sum(is.na(df[i,]))
+}
+### Create variable adding the total number missing values, outliers and errors
+df$outliers<-vout
+df$errors<-verrs
+df$missings<-vmis
+```
+# Correlation
+```{r}
+##Outliers
+condes(df, num.var = 35)
+##Errors
+##condes(df, num.var = 36) 
+##Missings
+condes(df, num.var = 37)
+```
+
+```{r}
+aggregate(df$missings, by=list(df$f.age), FUN=mean)
+aggregate(df$outliers, by=list(df$f.age), FUN=mean)
+
+aggregate(df$missings, by=list(df$f.jobsituation), FUN=mean)
+aggregate(df$outliers, by=list(df$f.jobsituation), FUN=mean)
+
+aggregate(df$missings, by=list(df$f.education), FUN=mean)
+aggregate(df$outliers, by=list(df$f.education), FUN=mean)
+
+aggregate(df$missings, by=list(df$f.marital), FUN=mean)
+aggregate(df$outliers, by=list(df$f.marital), FUN=mean)
+
+```
+
+
+# Imputation
+##Numeric Variables
+```{r}
+
+#Outliers -> missings
+
+#Delete duration outliers
+outliers<-which(df$duration>1500);length(outliers);
+df <- df[-outliers, ]
+
+var_num <-names(df)[c(1, 12:14)] ## age,campaign,pdays,previous
+length(var_num)
+summary(df[,var_num])
+res <- imputePCA(df[,var_num],ncp=2)
+summary(res$completeObs)
+
+#S'han imputat valors negatius a previous, els posem a 0
+
+sel <- which(res$completeObs[,"previous"] < 0)
+res$completeObs[sel,"previous"] <- 0
+
+df$age <- res$completeObs[,"age"]
+df$campaign <- res$completeObs[,"campaign"]
+df$pdays <- res$completeObs[,"pdays"]
+df$previous <- res$completeObs[,"previous"]
+```
+##Factors
+```{r}
+factors <-names(df)[c(24,28, 29 ,31)]; # f.job, f.housing, f.marital, f.loan
+summary(df[,factors])
+resfact <- imputeMCA(df[,factors],ncp=3);
+summary(resfact$completeObs)
+
+df$f.housing <- resfact$completeObs[,"f.housing"]
+df$f.marital <- resfact$completeObs[,"f.marital"]
+df$f.loan <- resfact$completeObs[,"f.loan"]
+df$f.job <- resfact$completeObs[,"f.job"]
+```
+
+Imputem manualment poutcome ja que pensem que els que no han respós a la pregunta molt probablement tampoc havien sigut contactats amb anterioritat:
+```{r}
+sel <- which(is.na(df$poutcome))
+
+df$poutcome <- factor(df$poutcome, labels=paste("Pout", sep="-", levels(df$poutcome)))
+
+table(df$poutcome)
+
+df$f.poutcome<-2
+
+# 1 level - failure
+sel<-which(df$poutcome %in% c("Pout-failure"))
+df$f.poutcome[sel] <- 1
+sel<- which(is.na(df$poutcome))
+df$f.poutcome[sel] <- 1
+table(df$f.poutcome)
+
+# 2 level - success
+sel<-which(df$poutcome %in% c("Pout-success"))
+df$f.poutcome[sel] <- 2
+summary(df$f.education)
+df$f.poutcome<-factor(df$f.poutcome,levels=1:2,labels=c("f.Pout-failure","f.Pout-success"))
+summary(df$f.poutcome)
+```
+
+Imputem manualment default ja que pensem que els que no han respós a la pregunta no poden ser imputats a la repsosta afirmativa, tot i ser concients que seria totalment probable:
+```{r}
+sel <- which(is.na(df$default))
+df$f.default[sel] <- "f.no"
+table(df$f.default)
+```
+
+# Profiling
+```{r}
+condes(df[c(1:29, 31:34,38)],11)
+catdes(df, num.var = 21)
+```
+
+# PCA analysis
+## Eigenvalues and dominant axes analysis
+```{r}
+#PCA Y analysis (11)
+vfact <- names(df[c(23,25:29,31:34)])
+vnum <- names(df[c(12:14,16:20)])
+res.pca <- PCA(df[,vnum])
+res.pca <-PCA(df[,vnum], axes=c(3,4))
+summary(res.pca, nb.dec = 2, nbelements = 10)
+```
+Segons criteri de Khaiser realitzarem la interpretació de les 3 primeres dimensions, ja que la quarta ja te un egigenvalue menor a 1.
+```{r}
+barplot(res.pca$eig[,1], col = "yellow", main= "Eigenvalue")
+```
+En canvi, interpretariem 6 dimensions per Elbow's rule ja que notem una baixada considerable en a partir de la component numero 7.
+
+## Individuals point of view
+
+```{r}
+#Individus que contribuieixen més a la dimensió 1
+fviz_contrib(res.pca, choice = "ind", top = 10, fill = "yellow", axes = 1); # Dimensió 1
+#Individus que contribuieixen més a la dimensió 2
+fviz_contrib(res.pca, choice = "ind", top = 10, fill = "yellow", axes = 2); # Dimensió 2
+#Individus que contribuieixen més a la dimensió 3
+fviz_contrib(res.pca, choice = "ind", top = 10, fill = "yellow", axes = 3); # Dimensió 3
+```
+
+```{r}
+#Ara observem els individus més extrems del nostre data frame.
+indiv_out.d1<-Boxplot(res.pca$ind$coord[,1]); indiv_out.d1; # Dimensió 1
+#En la dimensió 1 no trobem cap extrem
+```
+
+```{r}
+# Dimensió 2
+indiv_out.d2<-Boxplot(res.pca$ind$coord[,2]); indiv_out.d2; 
+q1 = quantile(res.pca$ind$coord[,1])[2];q1;
+q3 = quantile(res.pca$ind$coord[,1])[4];q3;
+mild.threshold.upper = (q3-q1) * 1.5 + q3;mild.threshold.upper;
+mild.threshold.lower = q1 -(q3-q1) * 1.5;mild.threshold.lower;
+abline(h=c(3, -3), col = "red")
+indiv_sup.d2 <- which(res.pca$ind$coord[,2] >= 3 | res.pca$ind$coord[,2] <= -3);
+aux <- sort(indiv_sup.d2, decreasing= TRUE)
+df[aux[1:5], vfact]
+```
+En la dimensió 2 podem veure una petita mostra  que les coordenades més extremes ens apareixen en individus amb un nivell educatiu basic, sense parella i en una edat compresa entre 30 i 40 anys.
+```{r}
+plot.PCA(res.pca,choix=c("ind"),cex=0.95, col.ind="blue",select = "contrib 18")
+```
+
+
+```{r}
+#Dimensió 3
+indiv_out.d3<-Boxplot(res.pca$ind$coord[,3]); indiv_out.d3;
+q1 = quantile(res.pca$ind$coord[,1])[2];q1;
+q3 = quantile(res.pca$ind$coord[,1])[4];q3;
+mild.threshold.upper = (q3-q1) * 1.5 + q3;mild.threshold.upper;
+mild.threshold.lower = q1 -(q3-q1) * 1.5;mild.threshold.lower;
+abline(h=c(mild.threshold.upper, -5), col = "red")
+indiv_sup.d3 <- which(res.pca$ind$coord[,3] >= mild.threshold.upper | res.pca$ind$coord[,3] <= -5);
+aux <- sort(indiv_sup.d3, decreasing= TRUE)
+df[aux[1:7], vfact]
+```
+En la dimensió 3 en canvi podem veure que les coordenades més extremes ens apareixen en individus amb un nivell educatiu superior,  que han estat previament contactats, amb una hipoteca i que han estat contactats durant la temporada d'estiu.
+```{r}
+plot.PCA(res.pca,choix=c("ind"),cex=0.95, col.ind="blue",select = "contrib 18", axes = 3:4)
+```
+
+Tornem a realitzar el calcul dels PCA ara tenint en compte que els nostres individus considerats outliers de la mostra, realitzaran la funció d'individus suplementaris:
+```{r}
+newres.pca <- PCA(df[,vnum], ind.sup = c(indiv_sup.d2, indiv_sup.d3))
+```
+Podem veure que en utilizar els otuliers indivius com a individus suplmenetaris els eigenvalues canvien significativament modificant inclús el nombre de dimensions necessaries per a la correcta interpretació de les dades. 
+```{r}
+summary(newres.pca, nb.dec = 2, nbelements = 10)
+```
+
+## Interpreting the axes
+
+Comprovem de manera més exhaustiva quines variables afecten més als diferents eixos.
+```{r}
+dimdesc(newres.pca, axes = 1:3)
+```
+Pel que fa a la primera dimensió, les variables socioeconòmiques son les que ens mostren una major coorrelació.Per altra banda veiem que el nombre de contactes efectuats abans de l'ultim contacte té una relació negativa amb el primer eix.
+
+Pel que fa a la segona dimensió,  el més destacable és la relació inversament proporcional que el segon eix de coordenades té amb el numero de dies que han passat des de l'ultim contacte.
+
+En canvi el tercer eix de dimensions està altament relacionat amb el numero de vegades que un clientha estat conatctat durant aquesta campanya.
+
+
+# K-Means Classification
+
+```{r}
+set.seed(676489)
+
+summary(res.pca)
+opt <- kmeans(res.pca$ind$coord[,1:3], centers = 1)$betweenss
+opt[2] <- kmeans(res.pca$ind$coord[,1:3], centers = 2)$betweenss
+opt[3] <- kmeans(res.pca$ind$coord[,1:3], centers = 3)$betweenss
+opt[4] <- kmeans(res.pca$ind$coord[,1:3], centers = 4)$betweenss
+opt[5] <- kmeans(res.pca$ind$coord[,1:3], centers = 5)$betweenss
+opt[6] <- kmeans(res.pca$ind$coord[,1:3], centers = 6)$betweenss
+opt[7] <- kmeans(res.pca$ind$coord[,1:3], centers = 7)$betweenss
+opt[8] <- kmeans(res.pca$ind$coord[,1:3], centers = 8)$betweenss
+opt[9] <- kmeans(res.pca$ind$coord[,1:3], centers = 9)$betweenss
+opt[10] <- kmeans(res.pca$ind$coord[,1:3], centers = 10)$betweenss
+
+
+plot(opt, type = "b")
+abline(v = 8, col = "red")
+```
+Com podem comprovar en el gràfic de forma visual, trobem un pic en el moment en que el nombre de clusters és optim. En aquest cas n'utilitzarem 7.
+
+## Description of clusters
+```{r}
+set.seed(676489)
+def <- kmeans(res.pca$ind$coord[,1:3], centers = 8)
+df$kmeansclu<-factor(def$cluster)
+
+vclust <- c(vfact, vnum, "kmeansclu")
+targ <- which(vclust == "kmeansclu")
+catdes(df[,vclust], targ)
+```
+Cluster 1: Es troba la gent jove treballadora que han sigut prèviamnet contactats
+
+Cluster 2: Individus que han estat prèviamnet contactats i d'edat avançada.
+
+Cluster 3: En aquest cas és difícil veure un patró que tots els individus segueixin.
+
+Cluster 4: En aquest cluster es troba la gent jove que treballa com a autònom.
+
+Cluster 5: Hi trobam individus que no són d'edat avançada, contactats durant la tardor-hivern i que estàn divorciats.
+
+Cluster 6: Aquest cluster segueix la línia del tercer, ja que no es pot veure un patró clar a simple vista.
+
+Cluster 7: Hi podem trobar individus que no són ancians (fins els 50 anys) que no han estat previament contactats.
+
+
+# Hierarchical Clustering
+
+Després de comprovar el nombre optim de cluster a definir interaccionant amb el plot, hem vist que és 5.
+```{r}
+clust <- HCPC(res.pca, nb.clust = 5, order = TRUE)
+```
+
+## Description of clusters
+```{r}
+clust$desc.var
+clust$desc.axes
+
+#Individus que són més propers i més lluny al centre dels diferents clusters.
+clust$desc.ind
+```
+
+En la divisió de clusters per les seves variables podem trobar dos primers clusters altament relacionats amb la variable previous, persones que havien estat contactades anteriorment. En el cas del primer, també es important veure la relació que el cluster té amb els dies que han passat des de l'ultim contacte. Del segon cluster també obtenim relacions socioeconòmiques negatives i amb una important presència.
+
+Per altra banda el cluster numero 3 unicament obté relacions en el sentit negatiu i principalment de variables socioeconòmiques. Totalment el contrari que el cluster numero 4.
+
+Acabem amb el cluster 5. En aquest cas els individus majoritariament havien estat contactats més d'una vegada durant la campanya actual, aquests tambñe gaudeixen d'una relació positiva amb les variables socioeconòmiques.
+
+Pel que fa als eixos resumidament podem dir que el cluster numero 1 està ben representat en la dimensió 3 i 4. El cluster 2 està ben representat en la dimensió 2,4 i 5 però molt malt repsentat en la dimensió 1. Seguidament el cluster 3 veiem que estpa mal representat en totes les dimensions existents. El 4 gaudeix de bona representació en les dues primeres dimencions. I per acabar el cluster numero 5 gaudeix de bona representació en la dimensió 4 i 1 per contra no li beneficia la dimensió 2.
+
+```{r}
+summary(df$duration)
+qulist<-quantile(df$duration,seq(0,1,0.125),na.rm=TRUE)
+df$f.duration<-factor(cut(df$duration,breaks=c(4,64,103,140,181,235,326,496,1499),include.lowest=T))
+
+summary(df$f.duration)
+levels(df$f.duration)<-paste0("f.duration-",levels(df$f.duration))
+```
+
+# CA analysis
+
+Per a realitzar l'anàlisis de correspondència simples utilitzarem dos factors sorgits de la neteja de les dades. En aquest cas farem l'estudi amb el factor f.jobsituation i el factor f.age.
+
+## f.duration - f.job
+
+```{r}
+t <- table(df$f.job, df$f.duration); t;
+chisq.test(t) 
+t <- CA(t)
+```
+
+Com que el p-value és més petit que 0,05 rebutgem la hipòtesis de independència entre els dos factors. Trobem una certa relació entre les trucades amb més durada i els treballadors en el sector dels serveis. Per altre banda, retirats i estudiants son els que més relació tenen amb les trucades curtes.
+
+###Eigenvalues and dominant axes analysis
+
+```{r}
+t(t$eig)
+```
+
+En aquest punt escollim utilitzar les 4 primeres dimensions, aquestes superen en escreix el limit del 80% de representació:
+
+```{r}
+t$col$cos2[,1:4]
+```
+
+Destaquem que la dimensió 3 i 4 realitzen una representació molt lleu de les nostres dades. En canvi la dimensió 1 té en compte les trucades de durada mitjana i en canvi en la tercera dimensió i juguen un paper bastant  important les trucades de major durada de la mostra. 
+
+
+## f.duration - f.age
+
+```{r}
+t <- table(df$f.season, df$f.duration); t;
+chisq.test(t)
+t <- CA(t)
+```
+Com que el p-value és més petit que 0,05 rebutgem la hipòtesis de independència entre els dos factors. En conjunt podem veure que al voltant de la primavera es situen les trucades amb una durada superior. En canvi, a l'estiu passa totalment el contrari.
+
+###Eigenvalues and dominant axes analysis
+
+```{r}
+t(t$eig)
+```
+
+En aquest punt escollim utilitzar les dues uniques dimensión per a poder fer-ne una posterior valoració.
+ 
+```{r}
+t$col$cos2[,1:2]
+```
+
+Tot i que la primera dimensió representa en gran escreix la major part de les dades, podem comentar que en la dimensió numero dos es veuen molt millor representades les trucades amb una major durada i també les de durades intermitges.
+
+
+
+
+
+
+
+#Numeric and Binary targets Forecasting Models
+##Numeric target
+
+```{r}
+hist(df$duration, freq = FALSE, main = "Histograma Duration")
+curve(dnorm(x,mean(df$duration),sd(df$duration)),add=TRUE,lwd=3, col = "yellow")
+
+#En canvi amb transformacions geomètriques:
+
+hist(log(df$duration), freq = FALSE,main = "Histograma log(duration)")
+curve(dnorm(x,mean(log(df$duration)),sd(log(df$duration))),add=TRUE,lwd=3, col = "yellow")
+```
+Veiem que les nostres dades no següeixen una distribució normal, per tant haurem de vigilar en el calcul de la correlació.
+
+###Numerical Variables
+
+Primerament comprovarem quines variables numeriques estan més relacioandes amb el nostre target numeric, fet ja en apartats anteriors.
+```{r}
+names(df)
+vars_num<-names(df)[c(1,11:14,16:20)]
+condes(df[,vars_num],which(vars_num == "duration"))
+
+#La variable més relacionada amb el nostre target és pdays, notem que hi ha certa relació entre els dies que passen des de l'ultim contacte i la durada de la trucada. En sentit negatiu també veiem una forta relació amb el nombre de vegades que s'ha contactat durant la darrera campanya.
+
+core <- cor(df[,vars_num])
+round(core[,2],dig=3)
+
+#Verifiquem la informació
+```
+###Modelling
+####M1
+Comencem amb un primer model on tenim totes les variables numeriques disponibles.
+```{r}
+m1<-lm(duration~.,data = df[,vars_num]) 
+summary(m1)
+
+#El nostre model té una explicabilitat de les dades molt baixa, concretament d'un 0,7%. Serà complicat extreure'n resultats vàlids.
+
+vif(m1)
+
+```
+####M2
+El Variance inflation factor del model 1 ens indica que existeixen variables que no ajuden a la construcció del nostre modelm concretament les variables econòmiques emp.car.rate, cons.price.idx i euribor3m. També la variable nr.employed. 
+```{r}
+#En un primer moment eliminarem solament les variables econòmiques anteriors.
+
+vars_num2 <- vars_num[c(-6,-7,-9)] #vars_num1 - emp.car.rate, cons.price.idx i euribor3m
+
+m2<-lm(duration~.,data = df[,vars_num2]) 
+summary(m2)
+
+#L'explicabilitat de les dades ha disminuit. Mala noticia.
+```
+####M3
+```{r}
+#Tornem a provar ara eliminant la variable nr.employed.
+vars_num3 <- vars_num2[c(-7)]
+
+m3<-lm(duration~.,data = df[,vars_num3]) 
+summary(m3)
+
+vif(m3) #ja no tenim dades molestes
+
+#L'explicabilitat de les dades ha disminuit. Mirarem si el model però ha millorat o l'hem empitjorat.
+```
+####M3 vs. M2
+```{r}
+anova(m3,m2)
+```
+Acceptem la hipotesis nula. Els dos models son equivalents segons el test de Fisher.
+
+####M4
+A partir d'un Stepwise Algotithm intentarem crear un nou model a partir de l'anterior.
+```{r}
+m4 <- step(m3, k=log(nrow(df)))
+summary(m4)
+```
+
+####M4 vs. M3
+```{r}
+anova(m4,m3)
+#Altre vegada els dos models son equivalents.
+
+BIC(m4,m3)
+```
+Tot i ser models equivalents el Bayesian Information Criteria ens diu que el model 4 és millor, per tant ens quedem amb el model 4. En tot cas, farem una ultima comprovació aplicant transformacions geometriques al nostre target, recordem que no segueix una distribució normal.
+
+```{r}
+m4new<-lm(log(duration)~.,data = df[,vars_num3]) 
+summary(m4new)
+
+#L'explicabilitat de les dades ha millorat bastant.
+```
+####M4 vs. M4new
+```{r}
+anova(m4,m4new)
+#No son models equivalents
+BIC(m4,m4new)
+
+marginalModelPlots(m4new)
+```
+Un cop vist que els models no son equivalents i realitzat altre vegada el Bayesian Information Criteria podem dir que el nostre nou model, on em aplicat transformacions geomètriques és millor que tots els anteriors. Però que la variable pdays en causa problemes, decidim eliminar-la.
+
+####M5
+
+```{r}
+vars_num4 <- vars_num3[c(-4)] #vars_num3 - pdays
+m5 <- lm(log(duration)~.,data = df[,vars_num4]) 
+
+summary(m5)
+
+anova(m4new,m5) #Son model equivalents
+BIC(m4new,m5) #El model 5 és millor que l'anterior. Model definitiu (a falta d'afegir els factors)
+
+par(mfrow = c(2,2))
+plot(m5)
+```
+### Factors
+
+Complementarem el nostre model amb alguna variable factor, amb la intenció de millorar-lo.
+
+```{r}
+vars_fact<-names(df)[c(22:34,38)]
+vars_fact
+```
+#### M6(M5 + f.jobsituation)
+```{r}
+m6 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation, data = df) 
+summary(m6)
+
+BIC(m6,m5)
+```
+
+Afegint un factor l'explicabilitat no ha aumentat. Per altra banda veiem que dels dos models m5 i m6 és millor el primer però seguirem intentant treballar amb els nostres factors. Deixem doncs el factor f.season.
+
+####M7 (M6 + f.marital)
+```{r} 
+m7 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation + f.marital, data = df) 
+summary(m7)
+
+BIC(m6,m7) # Empitjorem resultats, descartem el factor
+```
+####M8 (M6 + f.education)
+```{r} 
+m8 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation + f.education, data = df) 
+summary(m8)
+
+BIC(m6,m8) # Empitjorem resultats, descartem el factor
+```
+####M9 (M6 + f.prev_contacted)
+```{r} 
+m9 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation + f.prev_contacted, data = df) 
+summary(m9)
+
+anova(m9)
+
+BIC(m6,m9) # Empitjorem resultats, descartem factor
+```
+
+####M10 (M6 + f.season)
+```{r} 
+m10 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation + f.season, data = df) 
+summary(m10)
+
+anova(m10, m6) #No son models equivalents.
+
+BIC(m6,m10) # Millorem resultats, conservem els factors f.jobsituation i f.season
+```
+####M11 (f.jobsituation interaction)
+```{r}
+m11 <- lm(log(duration)~ (age + campaign + previous + cons.conf.idx +f.season )*f.jobsituation, data = df) 
+summary(m11)
+
+BIC(m11,m10) #No ens aporta res positiu
+```
+
+####M12 (f.season interaction)
+```{r}
+m12 <- lm(log(duration)~ (age + campaign + previous + cons.conf.idx + f.jobsituation) * f.season, data = df) 
+summary(m12)
+
+BIC(m12,m10) #No ens aporta res positiu
+```
+####M13 (f.season & f.jobsituation interaction)
+```{r}
+m13 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation * f.season, data = df) 
+summary(m13)
+
+anova(m13,m10)# Son modelsequivalents, ens quedarem amb el més nou.
+
+BIC(m13,m10) 
+```
+####M14
+L'anterior model no ens aporta res positiu però realitzem un test d'efectes nets per intentar solventar aquesta situació.
+```{r}
+m14<-step(m13, k=log(nrow(df)))
+summary(m14)
+Anova(m14)
+anova(m14,m10) #Son models equivalents, ens quedarem amb el millor dels dos.
+BIC(m14,m10) #Ara sí !!
+```
+###Validació del model
+```{r}
+par(mfrow = c(2,2))
+plot(m14)
+bptest(m14) 
+
+marginalModelPlots(m14) #No notem diferencies importants entre els nostres models i les dades.
+residualPlots(m14)
+```
+El nostre model no gaudeix de tota la homocedasticitat que ens agradaria, però les dades ens han portat a haver-lo de considerar vàlid.
+#### Anàlisis dels residus
+```{r}
+Boxplot(rstudent(m14), id.n=10);
+abline(h = -3, col = 'red', lwd = 2)
+aux<-which(rstudent(m14) <= -3);length(aux);
+df[aux,]
+```
+Veiem que tots els outliers que destaquem son de durades dins de l'interval [4,64] el més petit de tots. I de persones amb les que no s'havia contactat previament. Probablement el nostre model tendeix a donar lleus desviacions quan parlem de trucades curtes. 
+
+###Construcció del model
+```{r}
+summary(m14)
+```
+log(duration) = 5,76 -0.065* campaign + 0.009087 * cons.conf.idx -0.1242 * f.seasonSummer -0.0842 * f.seasonAut-Win
+
+
+
+
+
+
+##Binary Target
+###Numerical variables
+
+En aquesta segona part de la modelització, ens ajustarem al target factor Y, que ens explica si el client ha acceptat o no.
+
+####Preparació
+
+Gràcies a l'anàlisi multivariant de passades entregues, eliminarem les dades considerades com outliers.
+```{r}
+indSpl <- c(indiv_sup.d2, indiv_sup.d3)
+dfi <- df[-indSpl]
+```
+
+####Variables relacionades amb el target Y
+
+Amb el catdes podrem veure quines variables categòriques estàn més relacionades amb la variable target Y.
+
+```{r}
+cat_desc <- catdes(dfi,21)
+
+cat_desc$quanti.var
+cat_desc$test.chi2
+```
+
+####Construcció del model
+
+Per poder utilitzar el train i el test, separarem les dades aleatòriament en dos subgrups, amb unes proporcions del 80 i del 20%.
+```{r}
+set.seed(07111995)
+
+id <- sample_frac(data.frame(row(dfi)),0.8)
+n_clmns <- as.numeric(rownames(id))
+train <- dfi[n_clmns,] 
+test <- dfi[-n_clmns,]
+
+nrow(train)
+nrow(test)
+
+(nrow(train) + nrow(test)) == nrow(dfi)
+```
+
+#####Model amb variables numèriques
+```{r}
+cat_desc$quanti.var
+
+m1 <- glm(y~nr.employed+euribor3m+emp.var.rate+previous+cons.price.idx+cons.conf.idx+campaign, 
+          family = binomial, 
+          data = train)
+
+summary(m1)
+vif(m1)
+```
+Veiem que nr.employed, euribor3m, emp.var.rate i cons.price tenen valors molt superiors a 3, per tant eliminarem la superior (euribor3m) per veure'n el resultat
+
+```{r}
+m2 <- glm(y~nr.employed+emp.var.rate+previous+cons.price.idx+cons.conf.idx+campaign, 
+          family = binomial, 
+          data = train)
+
+summary(m2)
+vif(m2)
+```
+Podem veure com alguns han baixat, però seguim tenguent valors molt alts. Per tant eliminarem la major una altre vegada, emp.var.rate.
+
+```{r}
+m3 <- glm(y~nr.employed+previous+cons.price.idx+cons.conf.idx+campaign, 
+          family = binomial, 
+          data = train)
+
+summary(m3)
+vif(m3)
+```
+
+Ara ja tenim tots els valors menors que tres, podem fer el test Anova
+
+```{r}
+Anova(m3)
+```
+
+Amb els resultats del test anova, veiem que les variables menys representades són previous i campaign, per això provarem de fer transformacions geomètriques. Descartarem del model els conceptes econòmics, ja que no tenen res a veure amb l'individu.
+
+```{r}
+m4 <- glm(y~campaign+previous+nr.employed, 
+          family = binomial, 
+          data = train)
+
+summary(m4)
+vif(m4)
+Anova(m4)
+marginalModelPlots(m4)
+```
+
+```{r}
+m5 <- glm(y~campaign+poly(previous, 2)+nr.employed, 
+          family = binomial, 
+          data = train)
+
+summary(m5)
+vif(m5)
+Anova(m5)
+marginalModelPlots(m5)
+
+```
+
+Una vegada aplicada la transformació, podem veure que el valor del model a previous es millora.
+
+```{r}
+m6 <- glm(y~campaign+poly(previous, 2), 
+          family = binomial, 
+          data = train)
+
+summary(m6)
+vif(m6)
+Anova(m6, test="LR")
+marginalModelPlots(m6)
+```
+
+Finalment, es farà un test de Fisher per veure la rellevància de la variable que s'ha eliminat (nr.employed).
+
+```{r}
+anova(m5, m6, test="Chisq")
+```
+
+Com es pot veure, no hi ha diferència entre els dos models, per tant eliminarem la variable ja que no ens diu res significatiu.
+
+#####Model amb variables factors
+
+```{r}
+cat_desc$test.chi2
+```
+
+Afegim f.education com a factor al model:
+
+```{r}
+m7<- glm(y~poly(previous, 2)+campaign+f.education,
+          family = binomial,
+          data = train)
+
+summary(m7)
+
+Anova(m7, test="LR")
+marginalModelPlots(m7)
+```
+
+Com podem veure, el factor f.education no ens ajuda i am més, la comparació dels dos models és que el model m5 és millor.
+```{r}
+BIC(m7, m5)
+```
+
+
+Provem amb f.poutcome
+```{r}
+m8<- glm(y~poly(previous, 2)+campaign+f.poutcome,
+          family = binomial,
+          data = train)
+
+summary(m8)
+Anova(m8, test="LR")
+
+BIC(m5, m8)
+```
+Veiem que segueix sense ajudar-nos.
+
+
+Provem amb previous però factoritzada (contactat o no contactat)
+```{r}
+m9<- glm(y~f.prev_contacted+campaign,
+          family = binomial,
+          data = train)
+
+summary(m9)
+Anova(m9, test="LR")
+
+BIC(m5, m9)
+```
+Però segueix sense millorar.
+
+```{r}
+m10<- glm(y~poly(previous, 2)+f.poutcome,
+          family = binomial,
+          data = train)
+
+summary(m10)
+Anova(m10, test="LR")
+
+BIC(m5, m10)
+```
+Utilitzar la variable factor f.poutcome tampoc és útil.
+
+
+```{r}
+m11 <- glm(y~f.prev_contacted+f.prev_contacted+f.season+f.jobsituation+f.age+f.education,
+          family = binomial,
+          data = train)
+vif(m11)
+```
+
+Amb la funció step, eliminarem les variables no rellevants.
+
+```{r}
+m12 <- step(m11, k=log(nrow(train)))
+
+BIC(m5, m12)
+```
+Seguim veient que el model 5 és el més indicat, utilitzant només variables continues.
+
+#####Interaccions
+
+```{r}
+mi1 <- glm(y~(poly(previous, 2))*(campaign),
+          family = binomial,
+          data = train)
+
+Anova(mi1, test="LR")
+BIC(m5, mi1)
+```
+Veiem que la interacció no ens ofereix res.
+
+```{r}
+mi2 <- glm(y~(f.prev_contacted)*(campaign),
+          family = binomial,
+          data = train)
+
+Anova(mi2, test="LR")
+BIC(m5, mi2)
+```
+Utilitzant la variable previous factoritzada tampoc millora.
+
+```{r}
+mi3 <- glm(y~(f.prev_contacted)*(f.poutcome+f.education+f.jobsituation),
+          family = binomial,
+          data = train)
+
+Anova(mi3, test="LR")
+```
+Tampoc amb altres combinacions de factors.
+
+#### Model final
+
+Un cop realitzades les proves, sel·leccionam el model 5 com a bo.
+```{r}
+summary(m5)
+```
+
+#### Interpretació del model final
+
+Y = 41.017394 - campaign*0.071531 - poly(previous, 2):1*5.243436 + poly(previous, 2)2*4.986830 + nr.employed*-0.008383
+
+
+#### Validació
+
+```{r}
+Boxplot(rstudent(m5), id.n=2)
+abline(h=c(2,-2), col="yellow", lwd = 2)
+
+outliers <- which(rstudent(m5)>=2 | rstudent(m5)<= -2)
+length(outliers)
+```
+
+Ara veurem si hi ha alguna data influent que fa possible tenir molts autliers
+
+```{r}
+influent_data <- Boxplot(cooks.distance(m5), id.n = 4); influent_data
+
+ll_inf <- which(abs(cooks.distance(m5))<2)
+length(ll_inf)
+```
+Per tant no tenim data influent.
+
+
+```{r}
+influencePlot(m5, id.n=3)
+
+marginalModelPlot(m5)
+```
+
+#### Predicció
+```{r}
+predic <- predict(m5, type="response", newdata = test)
+p_numbers <- as.numeric(predic)
+
+summary(df$y)
+```
+
+
+```{r}
+predic.y <- factor(ifelse(p_numbers<0.4,0,1),labels=c("predit.No","predit.Yes"))
+table <- table(predic.y, test$y)
+table
+```
+
+Taxa d'encert:
+```{r}
+100*sum(diag(table))/sum(table)
+```

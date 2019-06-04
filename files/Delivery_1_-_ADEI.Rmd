@@ -1,7 +1,7 @@
 ---
-title: "First delivery - ADEI"
+title: "Third delivery - ADEI"
 author: "Alex Rubio i Josep Bernad"
-date: "1 de març de 2019"
+date: "4 de març de 2019"
 output:
   pdf_document:
     number_sections: yes
@@ -64,10 +64,10 @@ Deliverables are concerned with Multivariant Data Analysis and model building fo
 requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA", "lmtest")
 
 # Josep
-missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")[,"Package"]))]
+#missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")[,"Package"]))]
 
 # Àlex
-#missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="D:/Program Files/R/R-3.5.2/library")[,"Package"]))]
+missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="D:/Program Files/R/R-3.5.2/library")[,"Package"]))]
 
 missingPackages
 if(length(missingPackages)) install.packages(missingPackages)
@@ -82,12 +82,12 @@ lapply(requiredPackages, require, character.only = TRUE)
 # Load Required Packages: to be increased over the course
 
 # Josep
-setwd("~/Developer/r-studio/laboratory-adei/data-directory")
-load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
+#setwd("~/Developer/r-studio/laboratory-adei/data-directory")
+#load("~/Developer/r-studio/laboratory-adei/data-directory/5000_samples.RData")
 
 # Àlex
-#setwd("D:/Google Drive/Uni/ADEI/data-directory")
-#load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
+setwd("D:/Google Drive/Uni/ADEI/data-directory")
+load(path.expand("D:/Google Drive/Uni/ADEI/data-directory/5000_samples.RData"))
 
 summary(df)
 ```
