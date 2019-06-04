@@ -1530,14 +1530,19 @@ marginalModelPlot(m5)
 #### Predicció
 ```{r}
 predic <- predict(m5, type="response", newdata = test)
-pn <- as.numeric(predic)
+p_numbers <- as.numeric(predic)
 
 summary(df$y)
 ```
 
 
 ```{r}
-predic.y <- factor(ifelse(pn<0.5,0,1), labels = "previ.succ-no", "previ.succ-yes")
+predic.y <- factor(ifelse(p_numbers<0.4,0,1),labels=c("predit.No","predit.Yes"))
 table <- table(predic.y, test$y)
 table
+```
+
+Taxa d'encert:
+```{r}
+100*sum(diag(table))/sum(table)
 ```
