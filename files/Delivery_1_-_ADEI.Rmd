@@ -61,7 +61,7 @@ Deliverables are concerned with Multivariant Data Analysis and model building fo
 ## Loading packages 
 
 ```{r, include=FALSE}
-requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA")
+requiredPackages <- c("mvoutlier","chemometrics","mice","missForest","missMDA","DMwR","pbkrtest","jomo","readxl","haven","sf","rgdal","missMDA","effects","FactoMineR","car","factoextra","RColorBrewer","ggplot2","dplyr","data.table", "ggmap","ggthemes","knitr","MVA", "lmtest")
 #missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="/Library/Frameworks/R.framework/Versions/current/Resources/library")[,"Package"]))]
 
 missingPackages <- requiredPackages[!(requiredPackages %in% as.vector(installed.packages(lib.loc="D:/Program Files/R/R-3.5.2/library")[,"Package"]))]
@@ -1013,25 +1013,234 @@ Tot i que la primera dimensió representa en gran escreix la major part de les d
 
 #Numeric and Binary targets Forecasting Models
 ##Numeric target
-###Numerical Variables
 
 ```{r}
-vars_num<-names(df)[c(1,11:14,16:20,35:37)]
+hist(df$duration, freq = FALSE, main = "Histograma Duration")
+curve(dnorm(x,mean(df$duration),sd(df$duration)),add=TRUE,lwd=3, col = "yellow")
+
+#En canvi amb transformacions geomètriques:
+
+hist(log(df$duration), freq = FALSE,main = "Histograma log(duration)")
+curve(dnorm(x,mean(log(df$duration)),sd(log(df$duration))),add=TRUE,lwd=3, col = "yellow")
+```
+Veiem que les nostres dades no següeixen una distribució normal, per tant haurem de vigilar en el calcul de la correlació.
+
+###Numerical Variables
+
+Primerament comprovarem quines variables numeriques estan més relacioandes amb el nostre target numeric, fet ja en apartats anteriors.
+```{r}
+names(df)
+vars_num<-names(df)[c(1,11:14,16:20)]
 condes(df[,vars_num],which(vars_num == "duration"))
 
+#La variable més relacionada amb el nostre target és pdays, notem que hi ha certa relació entre els dies que passen des de l'ultim contacte i la durada de la trucada. En sentit negatiu tanbé veiem una forta relació amb el nombre de vegades que s'ha contactat durant la darrera campanya.
+
+core <- cor(df[,vars_num])
+round(core[,2],dig=3)
+
+#Verifiquem la informació
+```
+###Modelling
+####M1
+Comencem amb un primer model on tenim totes les variables numeriques disponibles.
+```{r}
 m1<-lm(duration~.,data = df[,vars_num]) 
 summary(m1)
 
-vars_num2 <- vars_num[c(-6:-10)]
+#El nostre model té una explicabilitat de les dades molt baixa, concretament d'un 0,7%. Serà complicat extreure'n resultats vàlids.
+
+vif(m1)
+
+```
+####M2
+El Variance inflation factor del model 1 ens indica que existeixen variables que no ajuden a la construcció del nostre modelm concretament les variables econòmiques emp.car.rate, cons.price.idx i euribor3m. També la variable nr.employed. 
+```{r}
+#En un primer moment eliminarem solament les variables econòmiques anteriors.
+
+vars_num2 <- vars_num[c(-6,-7,-9)] #vars_num1 - emp.car.rate, cons.price.idx i euribor3m
 
 m2<-lm(duration~.,data = df[,vars_num2]) 
 summary(m2)
 
-vars_num3 <- vars_num2[c(-6:-8)]
+#L'explicabilitat de les dades ha disminuit. Mala noticia.
+```
+####M3
+```{r}
+#Tornem a provar ara eliminant la variable nr.employed.
+vars_num3 <- vars_num2[c(-7)]
 
 m3<-lm(duration~.,data = df[,vars_num3]) 
 summary(m3)
+
+vif(m3) #ja no tenim dades molestes
+
+#L'explicabilitat de les dades ha disminuit. Mirarem si el model però ha millorat o l'hem empitjorat.
 ```
+####M3 vs. M2
+```{r}
+anova(m3,m2)
+```
+Acceptem la hipotesis nula. Els dos models son equivalents segons el test de Fisher.
+
+####M4
+A partir d'un Stepwise Algotithm intentarem crear un nou model a partir de l'anterior.
+```{r}
+m4 <- step(m3, k=log(nrow(df)))
+summary(m4)
+```
+
+####M4 vs. M3
+```{r}
+anova(m4,m3)
+#Altre vegada els dos models son equivalents.
+
+BIC(m4,m3)
+```
+Tot i ser models equivalents el Bayesian Information Criteria ens diu que el model 4 és millor, per tant ens quedem amb el model 4. En tot cas, farem una ultima comprovació aplicant transformacions geometriques al nostre target, recordem que no segueix una distribució normal.
+
+```{r}
+m4new<-lm(log(duration)~.,data = df[,vars_num3]) 
+summary(m4new)
+
+#L'explicabilitat de les dades ha millorat bastant.
+```
+####M4 vs. M4new
+```{r}
+anova(m4,m4new)
+#No son models equivalents
+BIC(m4,m4new)
+
+marginalModelPlots(m4new)
+```
+Un cop vist que els models no son equivalents i realitzat altre vegada el Bayesian Information Criteria podem dir que el nostre nou model, on em aplicat transformacions geomètriques és millor que tots els anteriors. Però que la variable pdays en causa problemes, decidim eliminar-la.
+
+####M5
+
+```{r}
+vars_num4 <- vars_num3[c(-4)] #vars_num3 - pdays
+m5 <- lm(log(duration)~.,data = df[,vars_num4]) 
+
+summary(m5)
+
+anova(m4new,m5) #Son model equivalents
+BIC(m4new,m5) #El model 5 és millor que l'anterior. Model definitiu (a falta d'afegir els factors)
+
+par(mfrow = c(2,2))
+plot(m5)
+```
+### Factors
+
+Complementarem el nostre model amb alguna variable factor, amb la intenció de millorar-lo.
+
+```{r}
+vars_fact<-names(df)[c(22:34,38)]
+vars_fact
+```
+#### M6(M5 + f.jobsituation)
+```{r}
+m6 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation, data = df) 
+summary(m6)
+
+BIC(m6,m5)
+```
+
+Afegint un factor l'explicabilitat no ha aumentat. Per altra banda veiem que dels dos models m5 i m6 és millor el primer però seguirem intentant treballar amb els nostres factors. Deixem doncs el factor f.season.
+
+####M7 (M6 + f.marital)
+```{r} 
+m7 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation + f.marital, data = df) 
+summary(m7)
+
+BIC(m6,m7) # Empitjorem resultats, descartem el factor
+```
+####M8 (M6 + f.education)
+```{r} 
+m8 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation + f.education, data = df) 
+summary(m8)
+
+BIC(m6,m8) # Empitjorem resultats, descartem el factor
+```
+####M9 (M6 + f.prev_contacted)
+```{r} 
+m9 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation + f.prev_contacted, data = df) 
+summary(m9)
+
+anova(m9)
+
+BIC(m6,m9) # Empitjorem resultats, descartem factor
+```
+
+####M10 (M6 + f.season)
+```{r} 
+m10 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation + f.season, data = df) 
+summary(m10)
+
+anova(m10, m6) #No son models equivalents.
+
+BIC(m6,m10) # Millorem resultats, conservem els factors f.jobsituation i f.season
+```
+####M11 (f.jobsituation interaction)
+```{r}
+m11 <- lm(log(duration)~ (age + campaign + previous + cons.conf.idx +f.season )*f.jobsituation, data = df) 
+summary(m11)
+
+BIC(m11,m10) #No ens aporta res positiu
+```
+
+####M12 (f.season interaction)
+```{r}
+m12 <- lm(log(duration)~ (age + campaign + previous + cons.conf.idx + f.jobsituation) * f.season, data = df) 
+summary(m12)
+
+BIC(m12,m10) #No ens aporta res positiu
+```
+####M13 (f.season & f.jobsituation interaction)
+```{r}
+m13 <- lm(log(duration)~ age + campaign + previous + cons.conf.idx + f.jobsituation * f.season, data = df) 
+summary(m13)
+
+anova(m13,m10)# Son modelsequivalents, ens quedarem amb el més nou.
+
+BIC(m13,m10) 
+```
+####M14
+L'anterior model no ens aporta res positiu però realitzem un test d'efectes nets per intentar solventar aquesta situació.
+```{r}
+m14<-step(m13, k=log(nrow(df)))
+summary(m14)
+Anova(m14)
+anova(m14,m10) #Son models equivalents, ens quedarem amb el millor dels dos.
+BIC(m14,m10) #Ara sí !!
+```
+###Validació del model
+```{r}
+par(mfrow = c(2,2))
+plot(m14)
+bptest(m14) 
+
+marginalModelPlots(m14) #No notem diferencies importants entre els nostres models i les dades.
+residualPlots(m14)
+```
+El nostre model no gaudeix de tota la homocedasticitat que ens agradaria, però les dades ens han portat a haver-lo de considerar vàlid.
+#### Anàlisis dels residus
+```{r}
+Boxplot(rstudent(m14), id.n=10);
+abline(h = -3, col = 'red', lwd = 2)
+aux<-which(rstudent(m14) <= -3);length(aux);
+df[aux,]
+```
+Veiem que tots els outliers que destaquem son de durades dins de l'interval [4,64] el més petit de tots. I de persones amb les que no s'havia contactat previament. Probablement el nostre model tendeix a donar lleus desviacions quan parlem de trucades curtes. 
+
+###Construcció del model
+```{r}
+summary(m14)
+```
+log(duration) = 5,76 -0.065* campaign + 0.009087 * cons.conf.idx -0.1242 * f.seasonSummer -0.0842 * f.seasonAut-Win
+
+
+
+
+
 ##Binary Target
 ###Numerical variables
 
